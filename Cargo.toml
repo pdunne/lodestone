@@ -1,0 +1,26 @@
+[package]
+name = "magma"
+version = "0.1.0"
+authors = ["Peter Dunne <peter.dunne@applied-magnetism.com>"]
+edition = "2018"
+description = ""
+homepage = ""
+repository = ""
+readme = "README.md"
+keywords =[""]
+categories = [""]
+license = "MPL-2.0"
+
+
+
+# [lib]
+# name = "magma"
+# crate-type = ["cdylib"]
+
+# [dependencies.pyo3]
+# version = "0.13.1"
+# features = ["extension-module"]
+
+
+[dependencies]
+# num-traits = "0.2"
