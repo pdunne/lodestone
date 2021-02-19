@@ -7,7 +7,7 @@ description = "User friendly magnetic field calculations in Rust"
 homepage = "https://github.com/pdunne/"
 repository = "https://github.com/pdunne/magnet_rs"
 readme = "README.md"
-keywords =["magnetism", "magnetic field", "calculations", ]
+keywords =["magnetism", "magnetic", "field", "calculations", ]
 categories = ["mathematics", "science", "simulation"]
 license = "MPL-2.0"
 
