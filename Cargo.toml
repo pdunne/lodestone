@@ -1,20 +1,19 @@
 [package]
-name = "magma"
+name = "magnet_rs"
 version = "0.1.0"
 authors = ["Peter Dunne <peter.dunne@applied-magnetism.com>"]
 edition = "2018"
-description = ""
-homepage = ""
-repository = ""
+description = "User friendly magnetic field calculations in Rust"
+homepage = "http://github.com/pdunne/"
+repository = "http://github.com/pdunne/"
 readme = "README.md"
-keywords =[""]
-categories = [""]
+keywords =["magnetism", "magnetic field", "calculations", ]
+categories = ["mathematics", "science", "simulation"]
 license = "MPL-2.0"
 
 
-
 # [lib]
-# name = "magma"
+# name = "magnet-rs"
 # crate-type = ["cdylib"]
 
 # [dependencies.pyo3]
@@ -24,3 +23,11 @@ license = "MPL-2.0"
 
 [dependencies]
 # num-traits = "0.2"
+
+[package.metadata.docs.rs]
+rustdoc-args = [
+    "--html-in-header",
+    "./src/katex.html"
+] 
+
+

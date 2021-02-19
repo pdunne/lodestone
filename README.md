@@ -1,9 +1,13 @@
-# Magnetic Mathematics
+# magnet_rs
+
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
-This Python library implements routines for calculating magnetic magnetic fields, written in Rust.
+This test library and binary implements routines for calculating magnetic
+fields, written in Rust. A more complete Python version can be found on
+[Github](https://github.com/pdunne/pymagnet), or
+[PyPi](https://pypi.org/project/pymagnet/)
 
 ## Features
 

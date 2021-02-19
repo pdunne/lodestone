@@ -1,5 +1,5 @@
-use crate::magnets::burlich::cel;
-use crate::{NAN, PI};
+use crate::magnets::burlisch::cel;
+use crate::PI;
 // use crate::magnets::
 
 pub fn solenoid_field(a: f64, b: f64, rho: f64, z: f64, b_0: f64) -> (f64, f64) {
