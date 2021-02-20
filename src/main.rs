@@ -10,9 +10,9 @@ Copyright 2021 Peter Dunne */
 
 //! magnet-rs test binary
 
-use magnet_rs::magnets::sheets::{magnetic_field, magnetic_field_x, magnetic_field_y, Rectangle};
-use magnet_rs::utils::points2::{Point2, Points2};
-use magnet_rs::PI;
+use crate::magnets::sheets::{magnetic_field, magnetic_field_x, magnetic_field_y, Rectangle};
+use crate::utils::points2::{Point2, Points2};
+use crate::PI;
 
 fn main() {
     println!("=====f64====");

@@ -1,11 +1,11 @@
 [package]
-name = "magnet_rs"
+name = "magnet-rs"
 version = "0.1.0"
 authors = ["Peter Dunne <peter.dunne@applied-magnetism.com>"]
 edition = "2018"
 description = "User friendly magnetic field calculations in Rust"
 homepage = "https://github.com/pdunne/"
-repository = "https://github.com/pdunne/magnet_rs"
+repository = "https://github.com/pdunne/magnet-rs"
 readme = "README.md"
 keywords =["magnetism", "magnetic", "field", "calculations", ]
 categories = ["mathematics", "science", "simulation"]

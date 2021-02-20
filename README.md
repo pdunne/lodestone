@@ -9,7 +9,7 @@ fields, written in Rust. A more complete Python version can be found on
 [Github](https://github.com/pdunne/pymagnet), or
 [PyPi](https://pypi.org/project/pymagnet/).
 
-Download from [crates.io](https://crates.io/crates/magnet_rs).
+Download from [crates.io](https://crates.io/crates/magnet-rs).
 
 
 ## Features
