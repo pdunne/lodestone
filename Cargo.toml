@@ -1,11 +1,11 @@
 [package]
-name = "magnet-rs"
+name = "magnet_rs"
 version = "0.1.0"
 authors = ["Peter Dunne <peter.dunne@applied-magnetism.com>"]
 edition = "2018"
 description = "User friendly magnetic field calculations in Rust"
 homepage = "https://github.com/pdunne/"
-repository = "https://github.com/pdunne/magnet-rs"
+repository = "https://github.com/pdunne/magnet_rs"
 readme = "README.md"
 keywords =["magnetism", "magnetic", "field", "calculations", ]
 categories = ["mathematics", "science", "simulation"]
@@ -13,7 +13,7 @@ license = "MPL-2.0"
 
 
 # [lib]
-# name = "magnet-rs"
+# name = "magnet_rs"
 # crate-type = ["cdylib"]
 
 # [dependencies.pyo3]

@@ -8,11 +8,11 @@ Copyright 2021 Peter Dunne */
 #![allow(dead_code)]
 #![warn(missing_docs)]
 
-//! magnet-rs test binary
+//! magnet_rs test binary
 
-use crate::magnets::sheets::{magnetic_field, magnetic_field_x, magnetic_field_y, Rectangle};
-use crate::utils::points2::{Point2, Points2};
-use crate::PI;
+use magnet_rs::magnets::sheets::{magnetic_field, magnetic_field_x, magnetic_field_y, Rectangle};
+use magnet_rs::utils::points2::{Point2, Points2};
+use magnet_rs::PI;
 
 fn main() {
     println!("=====f64====");
