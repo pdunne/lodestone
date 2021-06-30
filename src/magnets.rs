@@ -10,10 +10,10 @@ Copyright 2021 Peter Dunne */
 //! List the different struct types here!
 //! - List 1
 //! - List
-//! 
+//!
 //! # Methods
 
-pub mod burlisch;
-pub mod lines;
-pub mod sheets;
-pub mod solenoid;
+pub mod magnet2d;
+pub mod magnet3d;
+
+pub trait Magnet {}

@@ -1,3 +1,4 @@
+// use crate::utils::points::Points;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -260,7 +261,7 @@ impl Neg for Point3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::nearly_equal;
+    use crate::utils::comparison::nearly_equal;
     use crate::utils::points3::{Point3, Points3};
 
     #[test]
