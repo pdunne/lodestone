@@ -6,21 +6,41 @@ Copyright 2021 Peter Dunne */
 #![allow(clippy::many_single_char_names)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
-#![warn(missing_docs)]
+// #![warn(missing_docs)]
 
 //! magnet_rs test binary
 
-use std::fs::read;
+// use std::fs::read;
+use std::usize;
 
-// use magnet_rs::magnets::magnet2d::
-use magnet_rs::magnets::magnet2d::circle_field::get_polar_field_circle;
+use magnet_rs::magnets::magnet2d::circle_field::{get_field_circle, get_polar_field_circle};
 use magnet_rs::magnets::magnet2d::Circle;
 use magnet_rs::magnets::magnet2d::{Magnet2D, Rectangle};
 use magnet_rs::utils::comparison::nearly_equal;
+use magnet_rs::utils::conversions::vector_pol2cart;
+use magnet_rs::utils::points2::PolarPoints;
 use magnet_rs::utils::points2::{Point2, Points2, PolarPoint};
 use magnet_rs::{PI, PI_2};
 
-fn main() {
+fn main() -> anyhow::Result<()> {
+    // magnet_tests();
+
+    Ok(())
+}
+
+
+
+fn const_gen_test (){
+
+
+    
+
+
+}
+
+
+
+fn magnet_tests() {
     println!("=====f64====");
     let p1 = Point2 { x: 1.0, y: 2.0 };
     let p2 = Point2 { x: 3.0, y: 4.0 };
@@ -44,45 +64,21 @@ fn main() {
     println!("m3 {}", m3);
     println!("m4 {}", m4);
 
-    println!("m4 center is {}", m4.get_center());
+    println!("m4 center is {}", m4.center());
 
     let p3 = Point2 { x: 0.0, y: 0.0 };
 
-    let b = m1.get_field(&p3).unwrap();
+    let b = m1.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
 
-    let b = m2.get_field(&p3).unwrap();
+    let b = m2.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
 
-    let b = m3.get_field(&p3).unwrap();
+    let b = m3.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
 
-    let b = m4.get_field(&p3).unwrap();
+    let b = m4.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
-
-    let test: f64 = 0.0_f64.atan2(0.0);
-    println!("atan2 {}", test);
-
-    fn surface_field_y() {
-        let magnet = Circle::default();
-        let point1 = PolarPoint {
-            rho: magnet.radius,
-            phi: PI_2,
-        };
-        let field = get_polar_field_circle(&magnet, &point1).unwrap();
-        // println!(field);
-        let comp_field = PolarPoint {
-            rho: 0.0_f64,
-            phi: 0.5_f64,
-        };
-        let result =
-            nearly_equal(field.rho, comp_field.rho) && nearly_equal(field.phi, comp_field.phi);
-
-        println!("field: {}", field);
-        println!("comp_field: {}", comp_field);
-        println!("Comparison: {}", result);
-        println!("Diff_rho: {:e}", field.rho - comp_field.rho);
-    }
 
     surface_field_y();
     println!("Smallest f64 is: {:e}", f64::MIN_POSITIVE);
@@ -92,13 +88,84 @@ fn main() {
     println!("m1 {}", m1);
     println!("m2 {}", m2);
 
-    println!("m2 center is {}", m2.get_center());
+    println!("m1 center is {}", m1.center());
+
+    println!("m2 center is {}", m2.center());
 
     let p3 = Point2 { x: 0.0, y: 0.0 };
 
-    let b = m1.get_field(&p3).unwrap();
+    let b = m2.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
 
-    let b = m2.get_field(&p3).unwrap();
+    let b = m2.field(&p3).unwrap();
     println!("B: {} at {}", b, p3);
+
+    let step: usize = 5;
+    let stop: usize = 0;
+    let start: usize = 10;
+    for i in (stop..=start).step_by(step) {
+        print!("{} ", i);
+    }
+    println!(" ");
+    for i in (stop..=start).step_by(step).map(|x| x * x) {
+        print!("{} ", i);
+    }
+    println!(" ");
+}
+
+fn surface_field_y() {
+    let magnet = Circle::default();
+    println!("Magnet is: {}", magnet);
+
+    let point1 = PolarPoint {
+        rho: magnet.radius,
+        phi: PI_2,
+    };
+
+    println!("point1 is: {}", point1);
+
+    let field = get_polar_field_circle(&magnet, &point1).unwrap();
+    // println!(field);
+    let comp_field = PolarPoint {
+        rho: 0.0_f64,
+        phi: 0.5_f64,
+    };
+    // let result =
+    //     nearly_equal(field.rho(), comp_field.rho()) && nearly_equal(field.phi(), comp_field.phi());
+
+    // println!("field: {}", field);
+    println!("comp_field: {}", comp_field);
+
+    // println!("Comparison: {}", result);
+    // println!("Diff_rho: {:e}", field.rho() - comp_field.rho());
+
+    let rot_field = vector_pol2cart(&field, point1.phi());
+    let rot_comp_field = vector_pol2cart(&comp_field, point1.phi());
+    println!("ROTATED:");
+    println!("comp_field: {}", rot_field);
+    println!("Comparison: {}", rot_comp_field);
+
+    println!("Point 1 in cartesian {}", point1.to_cartesian());
+    let test_field = get_field_circle(&magnet, &point1.to_cartesian()).unwrap();
+    println!("test_field: {}", test_field);
+
+    println!("TOP");
+    let point2 = Point2::new(0.0, magnet.radius);
+    let test_field = get_field_circle(&magnet, &point2).unwrap();
+    println!("test_field: {}", test_field);
+
+    println!("RIGHT");
+    let point2 = Point2::new(magnet.radius, 0.0);
+    let test_field = get_field_circle(&magnet, &point2).unwrap();
+    println!("test_field: {}", test_field);
+
+    println!("BOTTOM");
+    let point2 = Point2::new(0.0, -magnet.radius);
+    let test_field = get_field_circle(&magnet, &point2).unwrap();
+    println!("test_field: {}", test_field);
+
+    println!("LEFT");
+    let point2 = Point2::new(-magnet.radius, 0.0);
+    let test_field = get_field_circle(&magnet, &point2).unwrap();
+    println!("test_field: {}", test_field);
 }

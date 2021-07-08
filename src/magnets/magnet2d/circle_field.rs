@@ -5,6 +5,7 @@ Copyright 2021 Peter Dunne */
 /// Contains magnet field routines for calculating the magnetic field due to an
 /// infinitely long bipolar rod (circle)
 use crate::magnets::magnet2d::Circle;
+use crate::utils::conversions::vector_pol2cart;
 use crate::utils::points2::{Point2, Points2, PolarPoint, PolarPoints};
 // use crate::PI;
 
@@ -26,9 +27,11 @@ pub fn get_polar_field_circle(
 
 pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, Box<dyn Error>> {
     let polar_val = point.to_polar();
-    let field = get_polar_field_circle(&magnet, &polar_val).unwrap();
+    let polar_field = get_polar_field_circle(&magnet, &polar_val).unwrap();
 
-    Ok(field.to_cartesian())
+    let field = vector_pol2cart(&polar_field, polar_val.phi());
+
+    Ok(field)
 }
 
 #[cfg(test)]

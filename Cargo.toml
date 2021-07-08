@@ -22,7 +22,13 @@ license = "MPL-2.0"
 
 
 [dependencies]
-# num-traits = "0.2"
+rayon = "1.5.1"
+anyhow="1.0.41"
+thiserror="1.0.26"
+# ndarray = "0.15.3"
+# nalgebra =  "0.27.1"
+# simba = {version = "0.5.1", features=["wide"]}
+# wide ="0.6.5"
 
 [package.metadata.docs.rs]
 rustdoc-args = [

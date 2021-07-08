@@ -9,7 +9,9 @@ Copyright 2021 Peter Dunne */
 
 pub mod comparison;
 pub mod conversions;
+pub mod point_array2;
 pub mod points;
 pub mod points2;
 pub mod points3;
 pub mod quaternion;
+pub mod vec2d;

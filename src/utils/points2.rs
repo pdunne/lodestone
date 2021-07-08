@@ -7,24 +7,26 @@ Copyright 2021 Peter Dunne */
 //!
 use crate::utils::conversions::{cart2pol, pol2cart};
 use crate::utils::points::Points;
+use crate::PI;
+
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
-/// Point2
+/// Point2 struct
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct Point2 {
-    ///X - coordinate
+    ///x coordinate
     pub x: f64,
-    ///y - coordinate
+    ///y coordinate
     pub y: f64,
 }
 
 /// PolarPoint
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct PolarPoint {
-    /// radial - coordinate
+    /// radial coordinate
     pub rho: f64,
-    /// azimuthal - coordinate
+    /// azimuthal coordinate
     pub phi: f64,
 }
 
@@ -41,12 +43,12 @@ impl Point2 {
 
 impl fmt::Display for Point2 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
+        write!(f, "(x: {}, y: {})", self.x, self.y)
     }
 }
 
 impl PolarPoint {
-    /// Constructor method that generates a Point2 struct by casting the
+    /// Constructor method that generates a PolarPoint struct by casting the
     /// generic input parameters to float64
     pub fn new<T: Into<f64>>(rho: T, phi: T) -> PolarPoint {
         PolarPoint {
@@ -58,34 +60,46 @@ impl PolarPoint {
 
 impl fmt::Display for PolarPoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.rho, self.phi)
+        write!(f, "(rho: {}, phi: {}˚)", self.rho, self.phi * 180.0 / PI)
     }
 }
 
 /// # Points Traits
 /// Overloading of +-*/, as well as helper functions
-
 /// Traits specific to Points2
 pub trait Points2 {
     /// Set output to be Points2
     type Output;
+    /// Returns x
     fn x(&self) -> f64;
+    /// Returns y
     fn y(&self) -> f64;
+    /// Returns Point with original y, but new x
     fn with_x(&self, x: f64) -> Self::Output;
+    /// Returns Point with original y, but new x
     fn with_y(&self, y: f64) -> Self::Output;
-
+    /// Converts Point2 to PolarPoint
     fn to_polar(&self) -> PolarPoint;
-
+    /// Returns magnitude of vector
     fn magnitude(&self) -> f64;
+    /// Returns squared magnitude of vector
     fn magnitude_squared(&self) -> f64;
+    /// Returns distance from point to origin
     fn distance_from_origin(&self) -> f64;
+    /// Returns distance from one point to another
     fn distance_from_point(&self, other: &Self) -> f64;
-
+    /// Returns dot product of two vectors
     fn dot(&self, other: &Self) -> f64;
+
+    /// Returns normalised vector from input vector
     fn unit(&self) -> Self::Output;
+    /// Returns a point/vector of zeros
     fn zero() -> Self::Output;
+    /// Returns a point/vector of ones
     fn identity() -> Self::Output;
+    /// Returns a point/vector with x = 1.0, y = 0.0
     fn i_hat() -> Self::Output;
+    /// Returns a point/vector with x = 0.0, y = 1.0
     fn j_hat() -> Self::Output;
 }
 
@@ -183,7 +197,7 @@ impl Points2 for Point2 {
     }
 
     fn to_polar(&self) -> PolarPoint {
-        cart2pol(*self)
+        cart2pol(&self)
     }
 
     fn magnitude_squared(&self) -> f64 {
@@ -352,7 +366,7 @@ impl PolarPoints for PolarPoint {
     }
 
     fn to_cartesian(&self) -> Point2 {
-        pol2cart(*self)
+        pol2cart(&self)
     }
 
     fn magnitude(&self) -> f64 {

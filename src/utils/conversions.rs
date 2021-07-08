@@ -1,28 +1,57 @@
 use crate::utils::points2::{Point2, Points2, PolarPoint};
 
 /// Converts a cartesian coordinate to polar
-pub fn cart2pol(point: Point2) -> PolarPoint {
+pub fn cart2pol(point: &Point2) -> PolarPoint {
     let rho = point.magnitude();
     let phi = point.y.atan2(point.x);
     PolarPoint::new(rho, phi)
 }
 
 /// Converts a polar coordinate to cartesian
-pub fn pol2cart(point: PolarPoint) -> Point2 {
+pub fn pol2cart(point: &PolarPoint) -> Point2 {
     let x = point.rho * point.phi.cos();
     let y = point.rho * point.phi.sin();
     Point2 { x: x, y: y }
 }
 
 /// Converts polar vectors to cartesian vectors
-pub fn vector_pol2cart(vector: PolarPoint, phi: f64) -> Point2 {
-    let vector_x = vector.rho * phi.cos() - vector.phi * phi.sin();
-    let vector_y = vector.rho * phi.sin() + vector.phi * phi.cos();
+pub fn vector_pol2cart(vector: &PolarPoint, phi: f64) -> Point2 {
+    let cos_phi = phi.cos();
+    let sin_phi = phi.sin();
+
+    let vector_x = vector.rho * cos_phi - vector.phi * sin_phi;
+    let vector_y = vector.rho * sin_phi + vector.phi * cos_phi;
 
     Point2 {
         x: vector_x,
         y: vector_y,
     }
+}
+
+/// Rotates a 2D point, `Point2` about a pivot point
+pub fn rotate_around_pivot(&point: &Point2, phi: f64, pivot: &Point2) -> Point2 {
+    let cos_val = phi.cos();
+    let sin_val = phi.sin();
+    let x = point.x - pivot.x;
+    let y = point.y - pivot.y;
+
+    let x_rot = (x * cos_val - y * sin_val) + pivot.x;
+    let y_rot = (x * sin_val + y * cos_val) + pivot.y;
+
+    Point2 { x: x_rot, y: y_rot }
+}
+
+/// Rotates a 2D point, `Point2` about the origin
+pub fn rotate_around_origin(&point: &Point2, phi: &f64) -> Point2 {
+    let cos_val = phi.cos();
+    let sin_val = phi.sin();
+    let x = point.x;
+    let y = point.y;
+
+    let x_rot = x * cos_val - y * sin_val;
+    let y_rot = x * sin_val + y * cos_val;
+
+    Point2 { x: x_rot, y: y_rot }
 }
 
 // def cart2sph(x, y, z):
