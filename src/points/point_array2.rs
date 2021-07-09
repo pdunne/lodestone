@@ -2,15 +2,16 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-//! PointsArray2
-//! 2D structs of arrays to
-//! This is more efficienct that arrays of structs.
+//! # PointArray2
+//! Structs of arrays to store x and values. This is more efficienct than creating
+//! an array of structs.
 //!
-// use crate::utils::conversions::{cart2pol, pol2cart};
-use crate::utils::points::Points;
+//! As arrays are stored on the stack, The number of elements per axis is limited
+//! to 10,000. For more elements, the PointVec2 struct can be used instead.
+//!
+
+use crate::points::Points;
 use rayon::prelude::*;
-// use crate::PI;
-// use crate::STACK_MAX;
 
 /// Traits for manipulating and accessing PointArray2 types
 pub trait PointArrays2<const N: usize> {
@@ -35,11 +36,11 @@ pub trait PointArrays2<const N: usize> {
     // fn distance_from_origin(&self) -> [f64; N];
     // /// Returns elementwise distance from one PointArray to another
     // fn distance_from_point(&self, other: &Self) -> [f64; N];
-    // /// Returns elementwise dot product of two PointArrays
-    // fn dot(&self, other: &Self) -> [f64; N];
+    /// Returns elementwise dot product of two PointArrays
+    fn dot(&self, other: &Self) -> [f64; N];
     //
-    //     /// Returns normalised vector from input vector
-    //     fn unit(&self) -> Self::Output;
+    /// Returns normalised vector from input vector
+    fn unit(&self) -> Self::Output;
     /// Returns a point/vector of zeros
     fn zero() -> Self::Output;
     /// Returns a point/vector of ones
@@ -61,6 +62,7 @@ fn vec_to_array<T, const N: usize>(v: Vec<T>) -> [T; N] {
 }
 
 /// Point2 Array struct
+#[derive(Debug, PartialEq)]
 struct PointArray2<const N: usize> {
     pub x: [f64; N],
     pub y: [f64; N],
@@ -277,11 +279,29 @@ impl<const N: usize> PointArrays2<N> for PointArray2<N> {
     //     fn distance_from_origin(&self) -> [f64; N];
     //     /// Returns elementwise distance from one PointArray to another
     //     fn distance_from_point(&self, other: &Self) -> [f64; N];
-    //     /// Returns elementwise dot product of two PointArrays
-    //     fn dot(&self, other: &Self) -> [f64; N];
-    //
-    //     /// Returns normalised vector from input vector
-    //     fn unit(&self) -> Self::Output;
+    /// Returns elementwise dot product of two PointArrays
+    fn dot(&self, other: &Self) -> [f64; N] {
+        vec_to_array(
+            self.x
+                .par_iter()
+                .zip(self.y.par_iter())
+                .zip(other.x.par_iter())
+                .zip(other.y.par_iter())
+                .map(|(((x1, y1), x2), y2)| (x1 * x2 + y1 * y2))
+                .collect::<Vec<f64>>(),
+        )
+    }
+
+    /// Returns normalised vector from input vector
+    fn unit(&self) -> Self::Output {
+        let (x_local, y_local) = self
+            .x
+            .par_iter()
+            .zip(self.y.par_iter())
+            .map(|(x, y)| internal_norm(x, y))
+            .collect::<(Vec<f64>, Vec<f64>)>();
+        PointArray2::new(vec_to_array(x_local), vec_to_array(y_local))
+    }
     //     /// Returns a point/vector of zeros
     fn zero() -> Self::Output {
         Self {
@@ -311,13 +331,42 @@ impl<const N: usize> PointArrays2<N> for PointArray2<N> {
         }
     }
 }
+
+/// Calculates the norm of an x,y pair
+fn internal_norm(x: &f64, y: &f64) -> (f64, f64) {
+    let xy_mag = (x.powi(2) + y.powi(2)).sqrt();
+    (x / xy_mag, y / xy_mag)
+}
+
+fn hard_function(x: &f64, y: &f64) -> (f64, f64) {
+    (x.powi(3).sqrt(), y.powi(3).sqrt())
+}
+
+impl<const N: usize> PointArray2<N> {
+    /// Method to calculate an 'hard' function on a PointArray2 struct
+    ///  - Iterates over the point array
+    ///  - passes the internal x,y pairs to a hard function
+    ///  - The hard function returns a tuple (f64, f64)
+    ///  - This is collected in a tuple of Vec
+    ///  - Each Vec is converted into an array
+    ///  - And finally the arrays are wrapped in a PointArray2 struct
+    pub fn gen_point_closure(&self) -> PointArray2<N> {
+        let (x_local, y_local) = self
+            .x
+            .par_iter()
+            .zip(self.y.par_iter())
+            .map(|(x, y)| hard_function(x, y))
+            .collect::<(Vec<f64>, Vec<f64>)>();
+        PointArray2::new(vec_to_array(x_local), vec_to_array(y_local))
+    }
+}
 #[cfg(test)]
 mod tests {
     use std::usize;
 
-    // use crate::utils::point_array2::{PointArray2, PointArrays2};
-    use super::{PointArray2, PointArrays2};
+    use super::{hard_function, PointArray2, PointArrays2};
     use crate::STACK_MAX;
+    const NUM_ELEM: usize = 100;
 
     #[test]
     fn test_default() {
@@ -328,7 +377,7 @@ mod tests {
     }
     #[test]
     fn test_zeros() {
-        const NUM_ELEM: usize = 10;
+        // const NUM_ELEM: usize = 10;
         let array = PointArray2::<NUM_ELEM>::default();
         let const_array: [f64; NUM_ELEM] = [0.0; NUM_ELEM];
         assert_eq!(array.x, const_array, "Test x");
@@ -371,7 +420,7 @@ mod tests {
 
     #[test]
     fn test_magnitude_1e4() {
-        const NUM_ELEM: usize = 10000;
+        // const NUM_ELEM: usize = 10000;
         assert!(
             NUM_ELEM <= STACK_MAX,
             "Warning: Possible stack overflow. Maximum number of elements is {}, {} were allocated",
@@ -381,5 +430,56 @@ mod tests {
         let array = PointArray2::<NUM_ELEM>::new([1.0; NUM_ELEM], [2.0; NUM_ELEM]).magnitude();
         let mag_array: [f64; NUM_ELEM] = [5.0_f64.sqrt(); NUM_ELEM];
         assert_eq!(array, mag_array);
+    }
+
+    #[test]
+    fn test_unit() {
+        // const NUM_ELEM: usize = 10;
+        assert!(
+            NUM_ELEM <= STACK_MAX,
+            "Warning: Possible stack overflow. Maximum number of elements is {}, {} were allocated",
+            STACK_MAX,
+            NUM_ELEM
+        );
+        let array = PointArray2::<NUM_ELEM>::new([1.0; NUM_ELEM], [2.0; NUM_ELEM]).unit();
+        let mag_array = PointArray2::<NUM_ELEM>::new(
+            [1.0 / 5.0_f64.sqrt(); NUM_ELEM],
+            [2.0 / 5.0_f64.sqrt(); NUM_ELEM],
+        );
+        assert_eq!(array, mag_array);
+    }
+
+    #[test]
+    fn test_dot_product() {
+        // const NUM_ELEM: usize = 10000;
+        assert!(
+            NUM_ELEM <= STACK_MAX,
+            "Warning: Possible stack overflow. Maximum number of elements is {}, {} were allocated",
+            STACK_MAX,
+            NUM_ELEM
+        );
+        let array_1 = PointArray2::<NUM_ELEM>::new([1.0; NUM_ELEM], [2.0; NUM_ELEM]);
+        let array_2 = PointArray2::<NUM_ELEM>::new([3.0; NUM_ELEM], [4.0; NUM_ELEM]);
+        let result = array_1.dot(&array_2);
+        let mag_array: [f64; NUM_ELEM] = [11.0; NUM_ELEM];
+        assert_eq!(result, mag_array);
+    }
+
+    #[test]
+    fn test_closure() {
+        // const NUM_ELEM: usize = 10000;
+        assert!(
+            NUM_ELEM <= STACK_MAX,
+            "Warning: Possible stack overflow. Maximum number of elements is {}, {} were allocated",
+            STACK_MAX,
+            NUM_ELEM
+        );
+        let input_x = 3.0;
+        let input_y = 2.0;
+        let (output_x, output_y) = hard_function(&input_x, &input_y);
+        let closure_array = PointArray2::<NUM_ELEM>::new([input_x; NUM_ELEM], [input_y; NUM_ELEM])
+            .gen_point_closure();
+        let mag_array = PointArray2::new([output_x; NUM_ELEM], [output_y; NUM_ELEM]);
+        assert_eq!(closure_array, mag_array);
     }
 }

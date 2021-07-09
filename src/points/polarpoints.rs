@@ -2,12 +2,11 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-//! Points 2
-//! 2D structs for handling points and their associated methods
+//! PolarPoints
+//! 2D struct for handling points in polar coordinates and their associated methods
 //!
-use crate::points::Points;
-use crate::utils::conversions::{cart2pol, pol2cart};
-use crate::PI;
+use crate::points::{Point2, Points};
+use crate::utils::conversions::pol2cart;
 
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
@@ -34,7 +33,80 @@ impl PolarPoint {
 
 impl fmt::Display for PolarPoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(rho: {}, phi: {}˚)", self.rho, self.phi * 180.0 / PI)
+        write!(f, "(rho: {}, phi: {}˚)", self.rho, self.phi.to_degrees())
+    }
+}
+
+/// Traits specific to PolarPoint
+pub trait PolarPoints {
+    type Output;
+    fn rho(&self) -> f64;
+    fn phi(&self) -> f64;
+    fn with_rho(&self, rho: f64) -> Self::Output;
+    fn with_phi(&self, phi: f64) -> Self::Output;
+
+    fn to_cartesian(&self) -> Point2;
+
+    fn magnitude(&self) -> f64;
+    fn magnitude_squared(&self) -> f64;
+    fn distance_from_origin(&self) -> f64;
+    fn distance_from_point(&self, other: &Self) -> f64;
+    // fn dot(&self, other: &Self) -> f64;
+    fn unit(&self) -> Self::Output;
+    fn zero() -> Self::Output;
+    fn identity() -> Self::Output;
+}
+
+impl Points for PolarPoint {
+    type Output = PolarPoint;
+
+    fn add_p(&self, other: &Self) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho + other.rho,
+            phi: self.phi + other.phi,
+        }
+    }
+
+    fn sub_p(&self, other: &Self) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho - other.rho,
+            phi: self.phi - other.phi,
+        }
+    }
+
+    fn mul_p(&self, other: &Self) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho * other.rho,
+            phi: self.phi * other.phi,
+        }
+    }
+
+    fn div_p(&self, other: &Self) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho / other.rho,
+            phi: self.phi / other.phi,
+        }
+    }
+
+    fn neg_p(&self) -> PolarPoint {
+        PolarPoint {
+            rho: -self.rho,
+            phi: -self.phi,
+        }
+    }
+
+    fn scale(&self, s: f64) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho * s,
+            phi: self.phi * s,
+        }
+    }
+
+    fn round(&self) -> PolarPoint {
+        PolarPoint {
+            rho: self.rho.round(),
+            phi: self.phi.round(),
+        }
     }
 }
 
@@ -55,7 +127,7 @@ impl PolarPoints for PolarPoint {
     }
 
     fn to_cartesian(&self) -> Point2 {
-        pol2cart(&self)
+        pol2cart(self)
     }
 
     fn magnitude(&self) -> f64 {
@@ -146,8 +218,8 @@ impl Neg for PolarPoint {
 
 #[cfg(test)]
 mod tests {
-    use crate::points::points2::{Point2, Points, Points2};
-    use crate::utils::comparison::nearly_equal;
+    use crate::points::{Point2, Points2};
+    // use crate::utils::comparison::nearly_equal;
 
     #[test]
     fn sum_points() {

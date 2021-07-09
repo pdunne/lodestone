@@ -2,15 +2,20 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-//! Points
+//! # Points
 //! Generic traits for all points
 //!
 
+mod point_array2;
 mod points2;
 mod points3;
+mod polarpoints;
 
+// make subroutines available from this module
+pub use point_array2::*;
 pub use points2::*;
 pub use points3::*;
+pub use polarpoints::*;
 
 /// General traits for all point types, including operation overloading
 pub trait Points {
