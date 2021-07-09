@@ -1,4 +1,4 @@
-use crate::utils::points2::{Point2, Points2, PolarPoint};
+use crate::points::{Point2, Points2, PolarPoint};
 
 /// Converts a cartesian coordinate to polar
 pub fn cart2pol(point: &Point2) -> PolarPoint {

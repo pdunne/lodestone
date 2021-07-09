@@ -3,7 +3,7 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
 
-use crate::utils::points2::Point2;
+use crate::points::Point2;
 use crate::PI;
 
 pub fn sheet_field(x: f64, y: f64, h: f64, kr: f64) -> Result<Point2, String> {

@@ -1,4 +1,3 @@
-// #![warn(missing_docs)]
 //! This test library and binary implements routines for calculating magnetic
 //! fields, written in Rust. A more complete Python version can be found on
 //! [Github](https://github.com/pdunne/pymagnet), or
@@ -14,10 +13,13 @@
 //! ## Exact Analytical Methods
 //!
 //! ## Iterative Method for Cylindrical Sources
-// extern crate nalgebra as na;
+// #![warn(missing_docs)]
+#![allow(dead_code)]
+
 use core::f64;
 
 pub mod magnets;
+pub mod points;
 pub mod routines;
 pub mod utils;
 

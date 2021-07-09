@@ -12,6 +12,7 @@ use rayon::prelude::*;
 // use crate::PI;
 // use crate::STACK_MAX;
 
+/// Traits for manipulating and accessing PointArray2 types
 pub trait PointArrays2<const N: usize> {
     /// Set output to be PointArays2
     type Output;
@@ -312,6 +313,8 @@ impl<const N: usize> PointArrays2<N> for PointArray2<N> {
 }
 #[cfg(test)]
 mod tests {
+    use std::usize;
+
     // use crate::utils::point_array2::{PointArray2, PointArrays2};
     use super::{PointArray2, PointArrays2};
     use crate::STACK_MAX;
@@ -320,6 +323,14 @@ mod tests {
     fn test_default() {
         let array = PointArray2::<2>::default();
         let const_array: [f64; 2] = [0.0, 0.0];
+        assert_eq!(array.x, const_array, "Test x");
+        assert_eq!(array.y, const_array, "Test y");
+    }
+    #[test]
+    fn test_zeros() {
+        const NUM_ELEM: usize = 10;
+        let array = PointArray2::<NUM_ELEM>::default();
+        let const_array: [f64; NUM_ELEM] = [0.0; NUM_ELEM];
         assert_eq!(array.x, const_array, "Test x");
         assert_eq!(array.y, const_array, "Test y");
     }

@@ -1,9 +1,10 @@
-/// Helper function to determine if two floats are equal within precision
-/// Taken from [https://floating-point-gui.de/errors/comparison/](https://floating-point-gui.de/errors/comparison/)
-///
-///
+//! # Comparisons
+//!
+//! Some simple comparison functions needed to for verifying results
 use crate::ERR_CUTOFF;
 
+/// Helper function to determine if two floats are equal within precision
+/// Taken from [https://floating-point-gui.de/errors/comparison/](https://floating-point-gui.de/errors/comparison/)
 pub fn nearly_equal(a: f64, b: f64) -> bool {
     // let ulp = f64::MIN_POSITIVE;
     let minimum_val = ERR_CUTOFF;

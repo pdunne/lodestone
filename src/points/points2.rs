@@ -5,8 +5,8 @@ Copyright 2021 Peter Dunne */
 //! Points 2
 //! 2D structs for handling points and their associated methods
 //!
+use crate::points::Points;
 use crate::utils::conversions::{cart2pol, pol2cart};
-use crate::utils::points::Points;
 use crate::PI;
 
 use std::fmt;
@@ -457,8 +457,8 @@ impl Neg for PolarPoint {
 
 #[cfg(test)]
 mod tests {
+    use crate::points::points2::{Point2, Points, Points2};
     use crate::utils::comparison::nearly_equal;
-    use crate::utils::points2::{Point2, Points, Points2};
 
     #[test]
     fn sum_points() {

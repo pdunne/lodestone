@@ -1,5 +1,5 @@
 use crate::magnets::magnet3d::bulirsch::cel;
-use crate::utils::points2::Point2;
+use crate::points::Point2;
 use crate::PI;
 // use crate::magnets::
 

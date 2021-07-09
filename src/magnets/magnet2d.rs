@@ -10,15 +10,12 @@ pub mod circle_field;
 pub mod line_field;
 pub mod rectangle_field;
 
-use std::error::Error;
 use std::fmt;
 use std::ops::{Add, Mul};
 
-use crate::magnets::magnet2d::circle_field::get_field_circle;
-use crate::magnets::magnet2d::rectangle_field::get_field_rectangle;
-use crate::magnets::Magnet;
-use crate::utils::points2::{Point2, PolarPoint};
-use crate::PI;
+use crate::magnets::{GetCenter, Magnet};
+use crate::points::{Point2, PolarPoint};
+use crate::MagnetError;
 
 /// A 2D rectangular magnet
 ///
@@ -55,17 +52,14 @@ pub struct Rectangle {
     pub jy: f64,
 }
 
-pub trait GetCenter2D {
-    fn center(&self) -> Point2;
-}
-
-impl GetCenter2D for Point2 {
+impl GetCenter<Point2> for Point2 {
     fn center(&self) -> Point2 {
         *self
     }
 }
 
-impl<T: Into<f64> + Copy, U: Into<f64> + Copy> GetCenter2D for (T, U) {
+impl<T: Into<f64> + Copy, U: Into<f64> + Copy> GetCenter<Point2> for (T, U) {
+    /// Converts a 2 element tuple to a Point2
     fn center(&self) -> Point2 {
         Point2 {
             x: self.0.into(),
@@ -107,7 +101,7 @@ impl Rectangle {
     where
         W: Into<f64> + Mul<Output = W> + Add<Output = W> + Copy,
         H: Into<f64> + Mul<Output = H> + Add<Output = H> + Copy,
-        C: GetCenter2D,
+        C: GetCenter<Point2>,
         A: Into<f64> + Mul<Output = A> + Add<Output = A> + Copy,
         J: Into<f64> + Mul<Output = J> + Add<Output = J> + Copy,
         P: Into<f64> + Mul<Output = P> + Add<Output = P> + Copy,
@@ -119,8 +113,8 @@ impl Rectangle {
             alpha: alpha.into(),
             jr: jr.into(),
             phi: phi.into(),
-            jx: jr.into() * (phi.into() * PI / 180.).cos(),
-            jy: jr.into() * (phi.into() * PI / 180.).sin(),
+            jx: jr.into() * phi.into().cos(),
+            jy: jr.into() * phi.into().sin(),
             a: width.into() / 2.0,
             b: height.into() / 2.0,
         }
@@ -136,48 +130,25 @@ impl fmt::Display for Rectangle {
         write!(
             f,
             "[w: {},\th: {},\tc: {},\talpha:{}\tJ ({:.3}, {:.3})]",
-            self.width, self.height, self.center, self.alpha, self.jx, self.jy
+            self.width,
+            self.height,
+            self.center,
+            self.alpha,
+            self.jr,
+            self.phi.to_degrees()
         )
     }
 }
 
 /// Magnet2D Traits
-pub trait Magnet2D<T, U>: Magnet {
-    /// Returns the magnetic field at a point
-    fn field(&self, point: &T) -> Result<T, Box<dyn Error>>;
+pub trait Magnet2D<POINT, CENTER, SIZE, MAG>: Magnet<POINT, CENTER, SIZE, MAG> {}
 
-    /// Returns the magnet center
-    fn center(&self) -> Point2;
-
-    /// Returns the magnet dimensions.
-    ///
-    /// Note: This returns a generic, an array [f64;2] for Rectangles,
-    /// and f64 for Circles
-    fn size(&self) -> U;
-
-    /// Returns the magnetisation vector
-    fn magnetisation(self) -> Point2;
-
-    /// Sets the magnet center to a point
-    fn set_center(&mut self, point: Point2);
-
-    /// Sets the size the of the magnet.
-    /// Generic method which can also change internal struct values
-    fn set_size(&mut self, point: U);
-
-    /// Set the magnetisation  of the magnet using a Polar vector.
-    /// i.e. magnitude and angle phi.
-    ///
-    /// This method also updates self.jx and self.jy
-    fn set_magnetisation(&mut self, magnetisation: PolarPoint);
-}
-
-impl Magnet for Rectangle {}
-
-impl Magnet2D<Point2, [f64; 2]> for Rectangle {
+impl Magnet<[f64; 2], Point2, [f64; 2], PolarPoint> for Rectangle {
     /// Returns the field due to a Rectangle
-    fn field(&self, point: &Point2) -> Result<Point2, Box<dyn Error>> {
-        get_field_rectangle(&self, point)
+    fn field(&self, point: &[f64; 2]) -> anyhow::Result<[f64; 2], MagnetError> {
+        // get_field_rectangle(&self, point, x)
+        // Ok([0.0_f64; 2])
+        Ok(*point)
     }
 
     /// Returns the center of a Rectangle
@@ -190,9 +161,9 @@ impl Magnet2D<Point2, [f64; 2]> for Rectangle {
         [self.width, self.height]
     }
 
-    /// Returns the magnetisation of a Rectangle: Point2 (x:Jx, y:Jy)
-    fn magnetisation(self) -> Point2 {
-        Point2::new(self.jx, self.jy)
+    /// Returns the magnetisation of a Rectangle: PolarPoint (rho:Jr, phi:angle)
+    fn magnetisation(self) -> PolarPoint {
+        PolarPoint::new(self.jr, self.phi)
     }
 
     /// Sets the magnet center
@@ -216,8 +187,8 @@ impl Magnet2D<Point2, [f64; 2]> for Rectangle {
     fn set_magnetisation(&mut self, magnetisation: PolarPoint) {
         self.jr = magnetisation.rho;
         self.phi = magnetisation.phi;
-        self.jx = self.jr * (self.phi * PI / 180.).cos();
-        self.jy = self.jr * (self.phi * PI / 180.).sin();
+        self.jx = self.jr * (self.phi).cos();
+        self.jy = self.jr * (self.phi).sin();
     }
 }
 
@@ -274,7 +245,7 @@ impl Circle {
     pub fn new<R, C, A, J, P>(radius: R, center: C, alpha: A, jr: J, phi: P) -> Circle
     where
         R: Into<f64> + Mul<Output = R> + Add<Output = R> + Copy,
-        C: GetCenter2D,
+        C: GetCenter<Point2>,
         A: Into<f64> + Mul<Output = A> + Add<Output = A> + Copy,
         J: Into<f64> + Mul<Output = J> + Add<Output = J> + Copy,
         P: Into<f64> + Mul<Output = P> + Add<Output = P> + Copy,
@@ -285,8 +256,8 @@ impl Circle {
             alpha: alpha.into(),
             jr: jr.into(),
             phi: phi.into(),
-            jx: jr.into() * (phi.into() * PI / 180.).cos(),
-            jy: jr.into() * (phi.into() * PI / 180.).sin(),
+            jx: jr.into() * phi.into().cos(),
+            jy: jr.into() * phi.into().sin(),
         }
     }
 }
@@ -300,17 +271,21 @@ impl fmt::Display for Circle {
         write!(
             f,
             "[r: {}\tc: {},\talpha:{}\tJ ({:.3}, {:.3})]",
-            self.radius, self.center, self.alpha, self.jx, self.jy
+            self.radius,
+            self.center,
+            self.alpha,
+            self.jr,
+            self.phi.to_degrees()
         )
     }
 }
 
-impl Magnet for Circle {}
-
-impl Magnet2D<Point2, f64> for Circle {
+// impl Magnet for Circle {}
+impl Magnet<[f64; 2], Point2, f64, PolarPoint> for Circle {
     /// Returns the field due to a Circle
-    fn field(&self, point: &Point2) -> Result<Point2, Box<dyn Error>> {
-        get_field_circle(&self, point)
+    fn field(&self, point: &[f64; 2]) -> Result<[f64; 2], MagnetError> {
+        // get_field_circle(&self, point)
+        Ok(*point)
     }
 
     /// Returns the center of a Circle
@@ -323,9 +298,9 @@ impl Magnet2D<Point2, f64> for Circle {
         self.radius
     }
 
-    /// Returns the magnetisation of a Circle: Point2 (x:Jx, y:Jy)
-    fn magnetisation(self) -> Point2 {
-        Point2::new(self.jx, self.jy)
+    /// Returns the magnetisation of a Circle: PolarPoint (Jr, phi)
+    fn magnetisation(self) -> PolarPoint {
+        PolarPoint::new(self.jr, self.phi)
     }
 
     /// Sets the magnet center
@@ -334,8 +309,8 @@ impl Magnet2D<Point2, f64> for Circle {
     }
 
     /// Sets the magnet radius
-    fn set_size(&mut self, point: f64) {
-        self.radius = point;
+    fn set_size(&mut self, radius: f64) {
+        self.radius = radius;
     }
 
     /// Set the magnetisation  of the magnet using a Polar vector.
@@ -345,7 +320,7 @@ impl Magnet2D<Point2, f64> for Circle {
     fn set_magnetisation(&mut self, magnetisation: PolarPoint) {
         self.jr = magnetisation.rho;
         self.phi = magnetisation.phi;
-        self.jx = self.jr * (self.phi * PI / 180.).cos();
-        self.jy = self.jr * (self.phi * PI / 180.).sin();
+        self.jx = self.jr * (self.phi).cos();
+        self.jy = self.jr * (self.phi).sin();
     }
 }

@@ -1,15 +1,19 @@
 use thiserror::*;
 
+/// Error Enum for possible errors
 #[derive(Error, Debug)]
 pub enum MagnetError {
+    /// Can't open file
     #[error("Could not load file: {0}")]
     LoadError(std::io::Error),
 
+    /// When parsing floats fail
     #[error("Could not parse float: {0}")]
     ParseError(std::num::ParseFloatError),
 
     // #[error("Could not parse float: {0}")]
     // StackError(),
+    /// Generic custom errors, string is passed to it
     #[error("Error: {0}")]
     CustomError(&'static str),
 }

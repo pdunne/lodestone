@@ -261,8 +261,8 @@ impl Neg for Point3 {
 
 #[cfg(test)]
 mod tests {
+    use crate::points::{Point3, Points3};
     use crate::utils::comparison::nearly_equal;
-    use crate::utils::points3::{Point3, Points3};
 
     #[test]
     fn sum_points() {

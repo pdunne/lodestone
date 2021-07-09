@@ -2,21 +2,22 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-/// Contains magnet field routines for calculating the magnetic field due to an
-/// infinitely long bipolar rod (circle)
+//! Contains magnet field routines for calculating the magnetic field due to an
+//! infinitely long bipolar rod (circle)
+//!
+//!
 use crate::magnets::magnet2d::Circle;
+use crate::points::{Point2, Points2, PolarPoint, PolarPoints};
 use crate::utils::conversions::vector_pol2cart;
-use crate::utils::points2::{Point2, Points2, PolarPoint, PolarPoints};
-// use crate::PI;
+use crate::MagnetError;
 
-use std::error::Error;
 /// Calculates the 2D magnetic field of an infintely long bipolar rod (circle)
 ///
 /// The field is returned in a `PolarPoint` struct
 pub fn get_polar_field_circle(
     magnet: &Circle,
     point: &PolarPoint,
-) -> Result<PolarPoint, Box<dyn Error>> {
+) -> Result<PolarPoint, MagnetError> {
     let prefac = magnet.jr * (magnet.radius / point.rho).powi(2) / 2.0;
     let b_rho = prefac * point.phi.cos();
     let b_phi = prefac * point.phi.sin();
@@ -25,7 +26,7 @@ pub fn get_polar_field_circle(
     Ok(field)
 }
 
-pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, Box<dyn Error>> {
+pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, MagnetError> {
     let polar_val = point.to_polar();
     let polar_field = get_polar_field_circle(&magnet, &polar_val).unwrap();
 
@@ -38,8 +39,8 @@ pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, Box<d
 mod tests {
     use crate::magnets::magnet2d::circle_field::get_polar_field_circle;
     use crate::magnets::magnet2d::Circle;
+    use crate::points::PolarPoint;
     use crate::utils::comparison::nearly_equal;
-    use crate::utils::points2::PolarPoint;
     use crate::{PI_2, PI_4};
 
     #[test]

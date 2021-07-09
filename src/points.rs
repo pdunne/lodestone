@@ -6,16 +6,28 @@ Copyright 2021 Peter Dunne */
 //! Generic traits for all points
 //!
 
+mod points2;
+mod points3;
+
+pub use points2::*;
+pub use points3::*;
+
 /// General traits for all point types, including operation overloading
 pub trait Points {
+    /// Output type, usually set to Self
     type Output;
-    /// Implelment addition
+    /// Implelments addition
     fn add_p(&self, other: &Self) -> Self::Output;
-    /// Subtraction
+    /// Implelments subtraction
     fn sub_p(&self, other: &Self) -> Self::Output;
+    /// Implelments multiplication
     fn mul_p(&self, other: &Self) -> Self::Output;
+    /// Implelments division
     fn div_p(&self, other: &Self) -> Self::Output;
+    /// Implelments negation
     fn neg_p(&self) -> Self::Output;
+    /// Implelments scaling by a float
     fn scale(&self, s: f64) -> Self::Output;
+    /// Implelments round of all internal elements
     fn round(&self) -> Self::Output;
 }
