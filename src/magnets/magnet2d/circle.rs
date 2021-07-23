@@ -4,13 +4,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
 
 pub use super::circle_field::*;
+use serde_derive::{Deserialize, Serialize};
 
-use std::fmt;
-use std::ops::{Add, Mul};
+use crate::utils::conversions::Angle;
 
-use crate::magnets::{GetCenter, Magnet};
+use crate::magnets::{GetCenter, GetField, Magnet};
 use crate::points::{Point2, PolarPoint};
 use crate::MagnetError;
+use anyhow::Result;
+use std::fmt;
+// use std::ops::{Add, Mul};
+// use crate::MagnetError;
 
 /// A 2D circular magnet
 ///
@@ -26,19 +30,20 @@ use crate::MagnetError;
 /// # Example
 /// ```rust
 /// use magnet_rs::magnets::Circle;
+/// use magnet_rs::utils::conversions::Angle;
 /// let magnet_1 = Circle::default();
 /// println!("Magnet 1:{}", magnet_1);
-/// let magnet_2 = Circle::new(1.0, (0.0, -1.0 / 2.0), 0.0, 1.0, 45);
+/// let magnet_2 = Circle::new(1.0, (0.0, -1.0 / 2.0), Angle::Degrees(0.0), 1.0, Angle::Degrees(90.0));
 /// println!("Magnet 2:{}", magnet_2);
 /// ```
 ///
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Circle {
     pub radius: f64,
     pub center: Point2,
-    pub alpha: f64,
+    pub alpha: Angle,
     pub jr: f64,
-    pub phi: f64,
+    pub phi: Angle,
     pub jx: f64,
     pub jy: f64,
 }
@@ -52,9 +57,9 @@ impl Default for Circle {
         Circle {
             radius: 1.0,
             center: Point2::new(0.0, 0.0),
-            alpha: 0.0,
+            alpha: Angle::Degrees(0.0),
             jr: 1.0,
-            phi: 90.0,
+            phi: Angle::Degrees(90.0),
             jx: 0.0,
             jy: 1.0,
         }
@@ -62,22 +67,22 @@ impl Default for Circle {
 }
 
 impl Circle {
-    pub fn new<R, C, A, J, P>(radius: R, center: C, alpha: A, jr: J, phi: P) -> Circle
+    pub fn new<C>(radius: f64, center: C, alpha: Angle, jr: f64, phi: Angle) -> Circle
     where
-        R: Into<f64> + Mul<Output = R> + Add<Output = R> + Copy,
+        // R: Into<f64> + Mul<Output = R> + Add<Output = R> + Copy,
         C: GetCenter<Point2>,
-        A: Into<f64> + Mul<Output = A> + Add<Output = A> + Copy,
-        J: Into<f64> + Mul<Output = J> + Add<Output = J> + Copy,
-        P: Into<f64> + Mul<Output = P> + Add<Output = P> + Copy,
+        // J: Into<f64> + Mul<Output = J> + Add<Output = J> + Copy,
+        // P: Into<f64> + Mul<Output = P> + Add<Output = P> + Copy,
     {
+        let phi_rad = phi.to_radians();
         Circle {
-            radius: radius.into(),
+            radius: radius,
             center: center.center(),
-            alpha: alpha.into(),
-            jr: jr.into(),
-            phi: phi.into(),
-            jx: jr.into() * phi.into().cos(),
-            jy: jr.into() * phi.into().sin(),
+            alpha: alpha,
+            jr: jr,
+            phi: phi,
+            jx: jr * phi_rad.cos(),
+            jy: jr * phi_rad.sin(),
         }
     }
 }
@@ -93,7 +98,7 @@ impl fmt::Display for Circle {
             "[r: {}\tc: {},\talpha:{}\tJ ({:.3}, {:.3})]",
             self.radius,
             self.center,
-            self.alpha,
+            self.alpha.to_degrees(),
             self.jr,
             self.phi.to_degrees()
         )
@@ -103,10 +108,10 @@ impl fmt::Display for Circle {
 // impl Magnet for Circle {}
 impl Magnet<[f64; 2], Point2, f64, PolarPoint> for Circle {
     /// Returns the field due to a Circle
-    fn field(&self, point: &[f64; 2]) -> Result<[f64; 2], MagnetError> {
-        // get_field_circle(&self, point)
-        Ok(*point)
-    }
+    // fn field(&self, point: &[f64; 2]) -> Result<[f64; 2], MagnetError> {
+    //     // get_field_circle(&self, point)
+    //     Ok(*point)
+    // }
 
     /// Returns the center of a Circle
     fn center(&self) -> Point2 {
@@ -120,7 +125,7 @@ impl Magnet<[f64; 2], Point2, f64, PolarPoint> for Circle {
 
     /// Returns the magnetisation of a Circle: PolarPoint (Jr, phi)
     fn magnetisation(self) -> PolarPoint {
-        PolarPoint::new(self.jr, self.phi)
+        PolarPoint::new(self.jr, self.phi.to_radians())
     }
 
     /// Sets the magnet center
@@ -139,8 +144,65 @@ impl Magnet<[f64; 2], Point2, f64, PolarPoint> for Circle {
     /// This method also updates self.jx and self.jy
     fn set_magnetisation(&mut self, magnetisation: PolarPoint) {
         self.jr = magnetisation.rho;
-        self.phi = magnetisation.phi;
-        self.jx = self.jr * (self.phi).cos();
-        self.jy = self.jr * (self.phi).sin();
+        self.phi = Angle::Radians(magnetisation.phi);
+        self.jx = self.jr * (magnetisation.phi.cos());
+        self.jy = self.jr * (magnetisation.phi.sin());
+    }
+}
+
+impl GetField<&Point2, Result<Point2, MagnetError>> for Circle {
+    /// Returns the magnetic field of a circular magnet at a Point2 struct {x,y}
+    fn field(&self, point: &Point2) -> Result<Point2, MagnetError> {
+        get_field_circle(self, point)
+    }
+}
+
+impl GetField<&(f64, f64), Result<(f64, f64), MagnetError>> for Circle {
+    /// Returns the magnetic field of a circular magnet at a 2-element tuple (x,y)
+    fn field(&self, point: &(f64, f64)) -> Result<(f64, f64), MagnetError> {
+        let field_vec = get_field_circle(
+            self,
+            &Point2 {
+                x: point.0,
+                y: point.1,
+            },
+        )?;
+        Ok((field_vec.x, field_vec.y))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::utils::comparison::nearly_equal;
+
+    use super::*;
+
+    #[test]
+    fn test_circle_field() {
+        let m1 = Circle::default();
+        println!("m: {}", m1);
+        let point1 = Point2::new(0.0, 0.5);
+
+        let field = m1.field(&point1).unwrap();
+        println!("f {}", field);
+        assert!(true);
+    }
+
+    #[test]
+    fn test_circle_surface_field_y_rot_90() {
+        let magnet = Circle::new(
+            1.0,
+            (0.0, 0.0),
+            Angle::Degrees(90.0),
+            1.0,
+            Angle::Degrees(90.0),
+        );
+        let point1 = Point2::new(0.0, 1.0);
+
+        let field = magnet.field(&point1).unwrap();
+        let comp_field = Point2::new(0.5, 0.0);
+
+        assert!(nearly_equal(field.x, comp_field.x));
+        assert!(nearly_equal(field.y, comp_field.y));
     }
 }

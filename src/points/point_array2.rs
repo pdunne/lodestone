@@ -9,8 +9,13 @@ Copyright 2021 Peter Dunne */
 //! As arrays are stored on the stack, The number of elements per axis is limited
 //! to 10,000. For more elements, the PointVec2 struct can be used instead.
 //!
+//!
+//! ## WARNING this file is no longer included as a module!
 
+use crate::points::internal_norm;
+use crate::points::rotation_2d::rotate_tuple2;
 use crate::points::Points;
+use integer_sqrt::IntegerSquareRoot;
 use rayon::prelude::*;
 
 /// Traits for manipulating and accessing PointArray2 types
@@ -38,7 +43,10 @@ pub trait PointArrays2<const N: usize> {
     // fn distance_from_point(&self, other: &Self) -> [f64; N];
     /// Returns elementwise dot product of two PointArrays
     fn dot(&self, other: &Self) -> [f64; N];
-    //
+
+    /// Rotates point anti-clockwise about an angle alpha
+    fn rotate(&self, alpha: &f64) -> Self::Output;
+
     /// Returns normalised vector from input vector
     fn unit(&self) -> Self::Output;
     /// Returns a point/vector of zeros
@@ -51,7 +59,6 @@ pub trait PointArrays2<const N: usize> {
     fn j_hat() -> Self::Output;
 }
 
-// use std::fmt;
 use std::convert::TryInto;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
@@ -63,7 +70,7 @@ fn vec_to_array<T, const N: usize>(v: Vec<T>) -> [T; N] {
 
 /// Point2 Array struct
 #[derive(Debug, PartialEq)]
-struct PointArray2<const N: usize> {
+pub struct PointArray2<const N: usize> {
     pub x: [f64; N],
     pub y: [f64; N],
 }
@@ -292,6 +299,17 @@ impl<const N: usize> PointArrays2<N> for PointArray2<N> {
         )
     }
 
+    /// Rotates point anti-clockwise about an angle alpha
+    fn rotate(&self, alpha: &f64) -> Self::Output {
+        let (x_rot, y_rot) = self
+            .x
+            .par_iter()
+            .zip(self.y.par_iter())
+            .map(|(x, y)| rotate_tuple2(&(*x, *y), alpha))
+            .collect::<(Vec<f64>, Vec<f64>)>();
+        PointArray2::new(vec_to_array(x_rot), vec_to_array(y_rot))
+    }
+
     /// Returns normalised vector from input vector
     fn unit(&self) -> Self::Output {
         let (x_local, y_local) = self
@@ -332,18 +350,12 @@ impl<const N: usize> PointArrays2<N> for PointArray2<N> {
     }
 }
 
-/// Calculates the norm of an x,y pair
-fn internal_norm(x: &f64, y: &f64) -> (f64, f64) {
-    let xy_mag = (x.powi(2) + y.powi(2)).sqrt();
-    (x / xy_mag, y / xy_mag)
-}
-
 fn hard_function(x: &f64, y: &f64) -> (f64, f64) {
     (x.powi(3).sqrt(), y.powi(3).sqrt())
 }
 
 impl<const N: usize> PointArray2<N> {
-    /// Method to calculate an 'hard' function on a PointArray2 struct
+    /// Method to calculate a 'hard' function on a PointArray2 struct
     ///  - Iterates over the point array
     ///  - passes the internal x,y pairs to a hard function
     ///  - The hard function returns a tuple (f64, f64)
@@ -360,13 +372,120 @@ impl<const N: usize> PointArray2<N> {
         PointArray2::new(vec_to_array(x_local), vec_to_array(y_local))
     }
 }
+
+impl<const N: usize> PointArray2<N> {
+    pub fn grid2d(x_min: &f64, x_max: &f64, y_min: &f64, y_max: &f64) -> PointArray2<N> {
+        // const ARRAY_NUM: usize = 9;
+        let num_points: usize = N.integer_sqrt();
+        let mut x = [0.0; N];
+        let mut y = [0.0; N];
+        let mut k: usize = 0;
+
+        let step_x = (x_max - x_min) / (num_points - 1) as f64;
+        let step_y = (y_max - y_min) / (num_points - 1) as f64;
+
+        for i in 0..num_points {
+            for j in 0..num_points {
+                x[k] = x_min + i as f64 * step_x;
+                y[k] = y_min + j as f64 * step_y;
+                k += 1;
+            }
+        }
+        PointArray2::new(x, y)
+    }
+}
+
+/// Generates a 2D grid of points (x_min:x_max, y_min:y_max) in the form of
+/// a tuple of Vectors (x, y) where x,y are Vec<f64>
+///
+/// This version generates the points using an iterator where the range is converted
+/// into a parallel iter (Rayon), a flat map
+pub fn cart_prod_2d<const N: usize>(
+    x_min: &f64,
+    x_max: &f64,
+    y_min: &f64,
+    y_max: &f64,
+) -> (Vec<f64>, Vec<f64>) {
+    let xs = (0_usize..N).into_par_iter();
+    let ys = (0_usize..N).into_par_iter();
+    // let xs = &xs;
+    // let ys = &ys;
+
+    let num_points: usize = N;
+
+    let step_x = (x_max - x_min) / (num_points - 1) as f64;
+    let step_y = (y_max - y_min) / (num_points - 1) as f64;
+
+    let (xx, yy): (Vec<f64>, Vec<f64>) = xs
+        .clone()
+        .flat_map(|x| {
+            ys.clone()
+                .map(move |y| (x_min + (x as f64) * step_x, y_min + y as f64 * step_y))
+        })
+        .unzip();
+
+    (xx, yy)
+
+    // various tests below commented out because they are not needed
+    // let (values, (squares, cubes)): (Vec<_>, (Vec<_>, Vec<_>)) = (0..4).into_par_iter()
+    // .map(|i| (i, (i * i, i * i * i)))
+    // .unzip();
+
+    // let (squares, cubes): (Vec<_>, Vec<_>) = (0..N)
+    //     .into_par_iter()
+    //     .map(|i| (x_min + (i as f64) * step_x, y_min + i as f64 * step_y))
+    //     .unzip();
+
+    // assert_eq!(squares, [0, 1, 4, 9]);
+    // assert_eq!(cubes, [0, 1, 8, 27]);
+
+    // let (xx, yy): = xs.flat_map(|x| {
+    // ys.clone().flat_map({
+    //         .map(move |y| (x_min + (x as f64) * step_x, y_min + y as f64 * step_y))
+    // })}).unzip();
+
+    // let (xx, yy): (Vec<f64>, Vec<f64>) = xs
+    //     .clone()
+    //     .flat_map(|x| {
+    //         ys.clone()
+    //             .map(move |y| (x_min + (x as f64) * step_x, y_min + y as f64 * step_y))
+    //     })
+    //     .unzip(); // .collect::<Vec<(i32, i32, i32)>>();
+
+    // PointArray2::<N> {
+    //     x: vec_to_array(xx),
+    //     y: vec_to_array(yy),
+    //     // x: xx.try_into().unwrap(),
+    //     // y: yy.try_into().unwrap(),
+    // }
+}
+
+pub fn cart_prod_3d<const N: usize>() -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+    let xs = (0..N).into_par_iter();
+    let ys = (0..N).into_par_iter();
+    let zs = (0..N).into_par_iter();
+
+    let ys = &ys;
+    let zs = &zs;
+
+    let (xx, (yy, zz)): (Vec<f64>, (Vec<f64>, Vec<f64>)) = xs
+        .flat_map(move |x| {
+            ys.clone()
+                .flat_map(move |y| zs.clone().map(move |z| (x as f64, (y as f64, z as f64))))
+        })
+        .unzip();
+
+    (xx, yy, zz)
+}
+
 #[cfg(test)]
 mod tests {
-    use std::usize;
+    // use std::usize;
 
-    use super::{hard_function, PointArray2, PointArrays2};
+    use super::{cart_prod_2d, cart_prod_3d, hard_function, PointArray2, PointArrays2};
     use crate::STACK_MAX;
     const NUM_ELEM: usize = 100;
+    // use crate::points::internal_norm;
 
     #[test]
     fn test_default() {
@@ -466,6 +585,36 @@ mod tests {
     }
 
     #[test]
+    fn test_rotate_90_small() {
+        let x = [1.0, -2.0, -3.0, -1.0];
+        let y = [1.0, 3.0, -2.0, -4.0];
+        let array = PointArray2::new(x, y).rotate(&90.0_f64.to_radians());
+        let comp_array = PointArray2::new(
+            [-0.9999999999999999, -3.0, 1.9999999999999998, 4.0],
+            [0.9999999999999999, -2.0, -3.0, -0.9999999999999998],
+        );
+        assert_eq!(array, comp_array);
+    }
+
+    #[test]
+    fn test_rotate_90_full() {
+        const NUM_ELEM: usize = 1000;
+        assert!(
+            NUM_ELEM <= STACK_MAX,
+            "Warning: Possible stack overflow. Maximum number of elements is {}, {} were allocated",
+            STACK_MAX,
+            NUM_ELEM
+        );
+        let array = PointArray2::<NUM_ELEM>::new([1.0; NUM_ELEM], [1.0; NUM_ELEM])
+            .rotate(&90.0_f64.to_radians());
+        let comp_array = PointArray2::<NUM_ELEM>::new(
+            [-0.9999999999999999; NUM_ELEM],
+            [0.9999999999999999; NUM_ELEM],
+        );
+        assert_eq!(array, comp_array);
+    }
+
+    #[test]
     fn test_closure() {
         // const NUM_ELEM: usize = 10000;
         assert!(
@@ -481,5 +630,108 @@ mod tests {
             .gen_point_closure();
         let mag_array = PointArray2::new([output_x; NUM_ELEM], [output_y; NUM_ELEM]);
         assert_eq!(closure_array, mag_array);
+    }
+
+    #[test]
+    fn test_grid2d() {
+        let x_min = -1.0;
+        let x_max = 1.0;
+        let y_min = -2.0;
+        let y_max = 2.0;
+        let points = PointArray2::<9>::grid2d(&x_min, &x_max, &y_min, &y_max);
+        let comp_points = PointArray2 {
+            x: [-1.0, -1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
+            y: [-2.0, 0.0, 2.0, -2.0, 0.0, 2.0, -2.0, 0.0, 2.0],
+        };
+        assert_eq!(points, comp_points);
+    }
+
+    #[test]
+    fn test_grid2d_large() {
+        let x_min = -3.0;
+        let x_max = 3.0;
+        let y_min = -6.0;
+        let y_max = 6.0;
+        let points = PointArray2::<81>::grid2d(&x_min, &x_max, &y_min, &y_max);
+        let comp_points = PointArray2 {
+            x: [
+                -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -2.25, -2.25, -2.25, -2.25,
+                -2.25, -2.25, -2.25, -2.25, -2.25, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5,
+                -1.5, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75,
+                1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 2.25, 2.25, 2.25, 2.25, 2.25, 2.25,
+                2.25, 2.25, 2.25, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0,
+            ],
+            y: [
+                -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5,
+                3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0,
+                -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0,
+                -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5,
+                3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0,
+                -1.5, 0.0, 1.5, 3.0, 4.5, 6.0,
+            ],
+        };
+        assert_eq!(points, comp_points);
+    }
+
+    #[test]
+    fn test_cart_prod_3() {
+        let x_min = -1.0;
+        let x_max = 1.0;
+        let y_min = -2.0;
+        let y_max = 2.0;
+        let (x_vec, y_vec) = cart_prod_2d::<3>(&x_min, &x_max, &y_min, &y_max);
+        let x_comp = vec![-1.0, -1.0, -1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+        let y_comp = vec![-2.0, 0.0, 2.0, -2.0, 0.0, 2.0, -2.0, 0.0, 2.0];
+        assert_eq!(x_vec, x_comp);
+        assert_eq!(y_vec, y_comp);
+    }
+
+    #[test]
+    fn test_cart_prod_9() {
+        let x_min = -3.0;
+        let x_max = 3.0;
+        let y_min = -6.0;
+        let y_max = 6.0;
+        let (x_vec, y_vec) = cart_prod_2d::<9>(&x_min, &x_max, &y_min, &y_max);
+        let x_comp = vec![
+            -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0, -2.25, -2.25, -2.25, -2.25,
+            -2.25, -2.25, -2.25, -2.25, -2.25, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5, -1.5,
+            -1.5, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, -0.75, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75,
+            1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 2.25, 2.25, 2.25, 2.25, 2.25, 2.25, 2.25,
+            2.25, 2.25, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0,
+        ];
+        let y_comp = vec![
+            -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0,
+            4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0,
+            1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0,
+            -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0,
+            -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5, 6.0, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.5,
+            6.0,
+        ];
+        assert_eq!(x_vec, x_comp);
+        assert_eq!(y_vec, y_comp);
+    }
+
+    #[test]
+    fn test_card_3d() {
+        let (x, y, z) = cart_prod_3d::<3>();
+        let x_comp = vec![
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+            1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+        ];
+        let y_comp = [
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0,
+            2.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0,
+        ];
+        let z_comp = [
+            0.0, 1.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0,
+            2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 2.0, 0.0, 1.0, 2.0,
+        ];
+
+        assert_eq!(x, x_comp);
+        assert_eq!(y, y_comp);
+        assert_eq!(z, z_comp);
     }
 }

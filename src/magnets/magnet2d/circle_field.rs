@@ -9,7 +9,7 @@ Copyright 2021 Peter Dunne */
 use crate::magnets::magnet2d::Circle;
 use crate::points::{Point2, Points2, PolarPoint, PolarPoints};
 use crate::utils::conversions::vector_pol2cart;
-use crate::MagnetError;
+use crate::{MagnetError, FP_CUTOFF, M2_PI};
 
 /// Calculates the 2D magnetic field of an infintely long bipolar rod (circle)
 ///
@@ -27,20 +27,27 @@ pub fn get_polar_field_circle(
 }
 
 pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, MagnetError> {
-    let polar_val = point.to_polar();
-    let polar_field = get_polar_field_circle(&magnet, &polar_val).unwrap();
+    let polar_val = (*point - magnet.center).to_polar();
 
-    let field = vector_pol2cart(&polar_field, polar_val.phi());
+    let local_polar = polar_val - PolarPoint::new(0.0, magnet.phi.to_radians());
 
+    let polar_field = get_polar_field_circle(&magnet, &local_polar).unwrap();
+
+    let mut field = vector_pol2cart(&polar_field, polar_val.phi());
+
+    if magnet.alpha.to_radians().abs() > FP_CUTOFF {
+        let reverse_angle = M2_PI - magnet.alpha.to_radians();
+        field = field.rotate(&reverse_angle);
+    }
     Ok(field)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::magnets::magnet2d::circle_field::get_polar_field_circle;
-    use crate::magnets::magnet2d::Circle;
-    use crate::points::PolarPoint;
+    use super::{get_field_circle, get_polar_field_circle, Circle};
+    use crate::points::{Point2, PolarPoint};
     use crate::utils::comparison::nearly_equal;
+    use crate::utils::conversions::Angle;
     use crate::{PI_2, PI_4};
 
     #[test]
@@ -62,15 +69,13 @@ mod tests {
             phi: PI_2,
         };
         let field = get_polar_field_circle(&magnet, &point1).unwrap();
-        // println!(field);
+
         let comp_field = PolarPoint {
             rho: 0.0_f64,
             phi: 0.5_f64,
         };
-        let result =
-            nearly_equal(field.rho, comp_field.rho) && nearly_equal(field.phi, comp_field.phi);
-
-        assert!(result);
+        assert!(nearly_equal(field.rho, comp_field.rho));
+        assert!(nearly_equal(field.phi, comp_field.phi));
     }
 
     #[test]
@@ -87,9 +92,59 @@ mod tests {
             phi: 0.5_f64 / 2.0_f64.sqrt(),
         };
 
-        let result =
-            nearly_equal(field.rho, comp_field.rho) && nearly_equal(field.phi, comp_field.phi);
+        assert!(nearly_equal(field.rho, comp_field.rho));
+        assert!(nearly_equal(field.phi, comp_field.phi));
+    }
 
-        assert!(result);
+    #[test]
+    fn surface_field_y_rot_0() {
+        let magnet = Circle::new(
+            1.0,
+            (0.0, 0.0),
+            Angle::Degrees(0.0),
+            1.0,
+            Angle::Degrees(90.0),
+        );
+        let point1 = Point2::new(0.0, 1.0);
+
+        let field = get_field_circle(&magnet, &point1).unwrap();
+        let comp_field = Point2::new(0.0, 0.5);
+        assert!(nearly_equal(field.x, comp_field.x));
+        assert!(nearly_equal(field.y, comp_field.y));
+    }
+
+    #[test]
+    fn surface_field_y_rot_90() {
+        let magnet = Circle::new(
+            1.0,
+            (0.0, 0.0),
+            Angle::Degrees(90.0),
+            1.0,
+            Angle::Degrees(90.0),
+        );
+        let point1 = Point2::new(0.0, 1.0);
+
+        let field = get_field_circle(&magnet, &point1).unwrap();
+        let comp_field = Point2::new(0.5, 0.0);
+
+        assert!(nearly_equal(field.x, comp_field.x));
+        assert!(nearly_equal(field.y, comp_field.y));
+    }
+
+    #[test]
+    fn surface_field_x_rot_90() {
+        let magnet = Circle::new(
+            1.0,
+            (0.0, 0.0),
+            Angle::Degrees(90.0),
+            1.0,
+            Angle::Degrees(0.0),
+        );
+        let point1 = Point2::new(0.0, 1.0);
+
+        let field = get_field_circle(&magnet, &point1).unwrap();
+        let comp_field = Point2::new(0.0, 0.5);
+        assert!(nearly_equal(field.x, comp_field.x));
+        assert!(nearly_equal(field.y, comp_field.y));
     }
 }

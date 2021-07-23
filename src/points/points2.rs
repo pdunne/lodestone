@@ -5,14 +5,16 @@ Copyright 2021 Peter Dunne */
 //! Points 2
 //! 2D structs for handling points and their associated methods
 //!
+use crate::points::rotation_2d::rotate_point2;
 use crate::points::{Points, PolarPoint};
 use crate::utils::conversions::cart2pol;
+use serde_derive::{Deserialize, Serialize};
 
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 /// Point2 struct
-#[derive(Copy, Clone, Debug, Default, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct Point2 {
     ///x coordinate
     pub x: f64,
@@ -28,6 +30,11 @@ impl Point2 {
             x: x.into(),
             y: y.into(),
         }
+    }
+
+    /// Returns a point struct as a tuple
+    pub fn as_tuple(&self) -> (f64, f64) {
+        (self.x, self.y)
     }
 }
 
@@ -63,6 +70,9 @@ pub trait Points2 {
     fn distance_from_point(&self, other: &Self) -> f64;
     /// Returns dot product of two vectors
     fn dot(&self, other: &Self) -> f64;
+
+    /// Rotates point anti-clockwise about an angle alpha
+    fn rotate(&self, alpha: &f64) -> Self::Output;
 
     /// Returns normalised vector from input vector
     fn unit(&self) -> Self::Output;
@@ -170,6 +180,11 @@ impl Points2 for Point2 {
 
     fn dot(&self, other: &Self) -> f64 {
         self.x * other.x + self.y * other.y
+    }
+
+    /// Rotates point anti-clockwise about an angle alpha
+    fn rotate(&self, alpha: &f64) -> Self::Output {
+        rotate_point2(self, alpha)
     }
 
     fn unit(&self) -> Point2 {
@@ -344,9 +359,7 @@ mod tests {
     fn unit_vector() {
         let p1 = Point2 { x: 3.0, y: 4.0 };
         let norm_p1 = p1.unit();
-
-        let result = nearly_equal(norm_p1.x, 3.0 / 5.0) && nearly_equal(norm_p1.y, 4.0 / 5.0);
-
-        assert!(result);
+        assert!(nearly_equal(norm_p1.x, 3.0 / 5.0));
+        assert!(nearly_equal(norm_p1.y, 4.0 / 5.0))
     }
 }

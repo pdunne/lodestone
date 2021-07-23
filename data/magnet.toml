@@ -1,0 +1,53 @@
+# Example input file
+
+
+
+# Define the magnets you want 
+# allowed kinds: 
+# 2D: `rectangle`, `circle`
+
+[[magnet]]
+kind = "rectangle"
+size = [1.0, 1.0]
+center = [-0.5, -0.5]
+magnetisation = [1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+
+[[magnet]]
+kind = "rectangle"
+size = [1.0, 1.0]
+center = [0.5, -0.5]
+magnetisation = [-1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+# [[magnet]]
+# kind = "circle"
+# size = 1.0
+# center = [0.0, 0.0]
+# magnetisation = [1.0, 90.0]
+# alpha = 0.0
+
+
+# Then define the type of grid for calculating over
+
+[grid]
+kind = "line"
+start = [0.0, -1.01]
+stop = [0.0, 0.01]
+numPoints = 2
+# units = 1e-3 # mm
+
+# [grid]
+# kind = "point"
+# point = [0.0, 0.01]
+
+# [grid]
+# kind = "custom"
+# x = [0.0, 0.0]
+# y = [3.3, 4.4]
+

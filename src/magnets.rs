@@ -16,9 +16,12 @@ Copyright 2021 Peter Dunne */
 mod magnet2d;
 mod magnet3d;
 
-pub use magnet2d::{Circle, Magnet2D, Rectangle};
+pub use magnet2d::{
+    get_field_2d, loop_field_2d, sheet_field, Circle, Magnet2D, MagnetType2D, Rectangle,
+};
 
-use crate::MagnetError;
+pub use magnet3d::bulirsch;
+// use crate::MagnetError;
 
 /// Return center trait. It must implement the `center()` method
 pub trait GetCenter<T> {
@@ -26,10 +29,18 @@ pub trait GetCenter<T> {
     fn center(&self) -> T;
 }
 
+/// Generic trait for returning the magnetic field due to an input point. This
+/// must be implemented for each magnet type and each input type.
+pub trait GetField<INPUT, OUTPUT> {
+    /// Returns the magnetic field due to a generic input which must contain an
+    /// x and y coordinate.
+    fn field(&self, point: INPUT) -> OUTPUT;
+}
+
 /// Magnet Trait for standard methods for all magnet types
 pub trait Magnet<POINT, CENTER, SIZE, MAG> {
     /// Returns the magnetic field at a point
-    fn field(&self, point: &POINT) -> anyhow::Result<POINT, MagnetError>;
+    // fn field(&self, point: &POINT) -> anyhow::Result<POINT, MagnetError>;
 
     /// Returns the magnet center
     fn center(&self) -> CENTER;

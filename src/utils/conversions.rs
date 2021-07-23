@@ -1,4 +1,32 @@
 use crate::points::{Point2, Points2, PolarPoint};
+use serde_derive::{Deserialize, Serialize};
+
+/// Angle enum for converting between radians and degrees
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize, Serialize)]
+pub enum Angle {
+    Degrees(f64),
+    Radians(f64),
+}
+
+impl Angle {
+    /// Converts radian angle to degrees as a float. If the angle is already in degrees,
+    /// it returns itself
+    pub fn to_degrees(&self) -> f64 {
+        match self {
+            Angle::Radians(val) => val.clone().to_degrees(),
+            Angle::Degrees(val) => val.clone(),
+        }
+    }
+
+    /// Converts degree angle to radians as a float. If the angle is already in radians,
+    /// it returns itself
+    pub fn to_radians(&self) -> f64 {
+        match self {
+            Angle::Degrees(val) => val.clone().to_radians(),
+            Angle::Radians(val) => val.clone(),
+        }
+    }
+}
 
 /// Converts a cartesian coordinate to polar
 pub fn cart2pol(point: &Point2) -> PolarPoint {
@@ -139,3 +167,33 @@ pub fn rotate_around_origin(&point: &Point2, phi: &f64) -> Point2 {
 //
 //     Bz = Br * _np.cos(theta) - Btheta * _np.sin(theta)
 //     return Bx, By, Bz
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{PI, PI_2, PI_4};
+
+    #[test]
+    fn test_degrees_to_radians() {
+        let angle = Angle::Degrees(90.0);
+        assert_eq!(angle.to_radians(), PI_2);
+    }
+
+    #[test]
+    fn test_degrees_to_degrees() {
+        let angle = Angle::Degrees(32.0);
+        assert_eq!(angle.to_degrees(), 32.0);
+    }
+
+    #[test]
+    fn test_radians_to_degrees() {
+        let angle = Angle::Radians(PI);
+        assert_eq!(angle.to_degrees(), 180.0);
+    }
+
+    #[test]
+    fn test_radians_to_radians() {
+        let angle = Angle::Radians(PI_4);
+        assert_eq!(angle.to_radians(), PI_4);
+    }
+}

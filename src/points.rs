@@ -6,13 +6,16 @@ Copyright 2021 Peter Dunne */
 //! Generic traits for all points
 //!
 
-mod point_array2;
+// mod point_array2;
+mod point_vec2;
 mod points2;
 mod points3;
 mod polarpoints;
+mod rotation_2d;
 
 // make subroutines available from this module
-pub use point_array2::*;
+// pub use point_array2::*;
+pub use point_vec2::*;
 pub use points2::*;
 pub use points3::*;
 pub use polarpoints::*;
@@ -35,4 +38,10 @@ pub trait Points {
     fn scale(&self, s: f64) -> Self::Output;
     /// Implelments round of all internal elements
     fn round(&self) -> Self::Output;
+}
+
+/// Calculates the norm of an x,y pair
+pub fn internal_norm(x: &f64, y: &f64) -> (f64, f64) {
+    let xy_mag = (x.powi(2) + y.powi(2)).sqrt();
+    (x / xy_mag, y / xy_mag)
 }

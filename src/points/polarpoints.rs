@@ -33,7 +33,7 @@ impl PolarPoint {
 
 impl fmt::Display for PolarPoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "(rho: {}, phi: {}˚)", self.rho, self.phi.to_degrees())
+        write!(f, "(rho: {}, phi: {})", self.rho, self.phi)
     }
 }
 

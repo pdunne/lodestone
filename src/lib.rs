@@ -23,6 +23,8 @@ pub mod points;
 pub mod routines;
 pub mod utils;
 
+pub mod config;
+
 mod error;
 pub use error::MagnetError;
 
