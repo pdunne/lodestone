@@ -11,19 +11,19 @@ pub enum Angle {
 impl Angle {
     /// Converts radian angle to degrees as a float. If the angle is already in degrees,
     /// it returns itself
-    pub fn to_degrees(&self) -> f64 {
+    pub fn to_degrees(self) -> f64 {
         match self {
-            Angle::Radians(val) => val.clone().to_degrees(),
-            Angle::Degrees(val) => val.clone(),
+            Angle::Radians(val) => val.to_degrees(),
+            Angle::Degrees(val) => val,
         }
     }
 
     /// Converts degree angle to radians as a float. If the angle is already in radians,
     /// it returns itself
-    pub fn to_radians(&self) -> f64 {
+    pub fn to_radians(self) -> f64 {
         match self {
-            Angle::Degrees(val) => val.clone().to_radians(),
-            Angle::Radians(val) => val.clone(),
+            Angle::Degrees(val) => val.to_radians(),
+            Angle::Radians(val) => val,
         }
     }
 }
@@ -39,11 +39,11 @@ pub fn cart2pol(point: &Point2) -> PolarPoint {
 pub fn pol2cart(point: &PolarPoint) -> Point2 {
     let x = point.rho * point.phi.cos();
     let y = point.rho * point.phi.sin();
-    Point2 { x: x, y: y }
+    Point2 { x, y }
 }
 
 /// Converts polar vectors to cartesian vectors
-pub fn vector_pol2cart(vector: &PolarPoint, phi: f64) -> Point2 {
+pub fn vector_pol2cart(vector: &PolarPoint, phi: &f64) -> Point2 {
     let cos_phi = phi.cos();
     let sin_phi = phi.sin();
 
@@ -57,7 +57,7 @@ pub fn vector_pol2cart(vector: &PolarPoint, phi: f64) -> Point2 {
 }
 
 /// Rotates a 2D point, `Point2` about a pivot point
-pub fn rotate_around_pivot(&point: &Point2, phi: f64, pivot: &Point2) -> Point2 {
+pub fn rotate_around_pivot(&point: &Point2, phi: &f64, pivot: &Point2) -> Point2 {
     let cos_val = phi.cos();
     let sin_val = phi.sin();
     let x = point.x - pivot.x;

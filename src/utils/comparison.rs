@@ -7,6 +7,7 @@ use crate::ERR_CUTOFF;
 /// tolerance of 1e-12
 ///
 /// Taken from [https://floating-point-gui.de/errors/comparison/](https://floating-point-gui.de/errors/comparison/)
+#[allow(clippy::float_cmp)]
 pub fn nearly_equal(a: f64, b: f64) -> bool {
     // let ulp = f64::MIN_POSITIVE;
     let minimum_val = ERR_CUTOFF;

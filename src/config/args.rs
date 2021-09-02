@@ -1,8 +1,14 @@
+///! # Arguments Module
+///! Read in command line arguments using clap
+///! For the moment this is limited to:
+///! - infile TOML configuration file
+///! - outfile: simulation result
+///! - silent: boolean
 use clap::{App, Arg};
 
 pub struct Args {
     pub infile: String,
-    pub outfile: String,
+    pub outfile: Option<String>,
     pub silent: bool,
 }
 
@@ -15,19 +21,21 @@ impl Args {
                     .short("o")
                     .long("outfile")
                     .takes_value(true)
-                    .help("Write output to a file"),
+                    .help("Write simulation output to a file"),
             )
             .arg(Arg::with_name("silent").short("s").long("silent"))
             .get_matches();
 
         let infile = matches.value_of("infile").unwrap_or_default().to_string();
-        let outfile = matches.value_of("outfile").unwrap_or_default().to_string();
 
-        let silent = if matches.is_present("silent") {
-            true
+        let outfile = if matches.is_present("outfile") {
+            Some(matches.value_of("outfile").unwrap_or_default().to_string())
         } else {
-            true
+            None
         };
+        // let outfile = matches.value_of("outfile").unwrap_or_default().to_string();
+
+        let silent = matches.is_present("silent");
         Self {
             infile,
             outfile,

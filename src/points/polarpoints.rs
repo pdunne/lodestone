@@ -29,6 +29,11 @@ impl PolarPoint {
             phi: phi.into(),
         }
     }
+
+    /// Returns a point struct as a tuple
+    pub fn as_tuple(&self) -> (f64, f64) {
+        (self.rho, self.phi)
+    }
 }
 
 impl fmt::Display for PolarPoint {
@@ -220,7 +225,8 @@ impl Neg for PolarPoint {
 mod tests {
     use crate::points::{Point2, Points2};
     // use crate::utils::comparison::nearly_equal;
-
+    // TODO:
+    // - Polarpoint tests
     #[test]
     fn sum_points() {
         let sum = Point2::i_hat() + Point2::j_hat();

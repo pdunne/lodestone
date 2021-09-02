@@ -10,8 +10,8 @@ Copyright 2021 Peter Dunne */
 // use crate::magnets::magnet2d::Rectangle;
 use super::Rectangle;
 use crate::points::{Point2, Points2};
-use crate::MagnetError;
-use crate::{FP_CUTOFF, I_2PI, I_4PI};
+use crate::{MagnetError, FP_CUTOFF, I_2PI, I_4PI, M2_PI};
+#[allow(clippy::many_single_char_names)]
 
 /// Returns the magnetic field vector due to a rectangle of width `2a`, height  `2b`
 /// centered at the origin,
@@ -50,7 +50,7 @@ pub fn get_field_rectangle(magnet: &Rectangle, point: &Point2) -> Result<Point2,
         Point2 { x: 0.0, y: 0.0 }
     };
     if magnet.alpha.to_radians().abs() > FP_CUTOFF {
-        let reverse_alpha = -magnet.alpha.to_radians();
+        let reverse_alpha = M2_PI - magnet.alpha.to_radians();
         field = field.rotate(&reverse_alpha);
     }
 
@@ -75,6 +75,7 @@ fn magnetic_field_y(magnet: &Rectangle, point: &Point2) -> Result<Point2, Magnet
     Ok(field)
 }
 
+#[allow(clippy::many_single_char_names)]
 fn field_in_x_for_x_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, MagnetError> {
     // f64.atan2(0.0) = PI/2
     // 1.0_f64.atan2(1.0) = PI/4
@@ -101,6 +102,7 @@ fn field_in_x_for_x_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, M
     Ok(j * I_2PI * (top_1.atan2(bottom_1) + top_2.atan2(bottom_2)))
 }
 
+#[allow(clippy::many_single_char_names)]
 fn field_in_y_for_x_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, MagnetError> {
     // when internals of ln = 1, then result  = 0
     // and thus Byx = 0
@@ -119,6 +121,7 @@ fn field_in_y_for_x_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, M
     Ok(-j * I_4PI * ((top_1 / bottom_1).ln() - (top_2 / bottom_2).ln()))
 }
 
+#[allow(clippy::many_single_char_names)]
 fn field_in_x_for_y_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, MagnetError> {
     // when internals of ln = 1, then result  = 0
     // and thus Bxy = 0
@@ -136,6 +139,7 @@ fn field_in_x_for_y_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, M
     Ok(j * I_4PI * ((top_1 / bottom_1).ln() - (top_2 / bottom_2).ln()))
 }
 
+#[allow(clippy::many_single_char_names)]
 fn field_in_y_for_y_mag(x: f64, y: f64, a: f64, b: f64, j: f64) -> Result<f64, MagnetError> {
     // f64.atan2(0.0) = PI/2
     // 1.0_f64.atan2(1.0) = PI/4

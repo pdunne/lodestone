@@ -2,9 +2,10 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-//! Contains magnet field routines for calculating the magnetic field due to an
-//! infinitely long bipolar rod (circle)
+//! # Infinitely long bipolar rod (circle)
 //!
+//! Contains magnet field routines for calculating the magnetic field in 2D
+//! for this structure
 //!
 use crate::magnets::magnet2d::Circle;
 use crate::points::{Point2, Points2, PolarPoint, PolarPoints};
@@ -31,9 +32,9 @@ pub fn get_field_circle(magnet: &Circle, point: &Point2) -> Result<Point2, Magne
 
     let local_polar = polar_val - PolarPoint::new(0.0, magnet.phi.to_radians());
 
-    let polar_field = get_polar_field_circle(&magnet, &local_polar).unwrap();
+    let polar_field = get_polar_field_circle(magnet, &local_polar)?;
 
-    let mut field = vector_pol2cart(&polar_field, polar_val.phi());
+    let mut field = vector_pol2cart(&polar_field, &polar_val.phi());
 
     if magnet.alpha.to_radians().abs() > FP_CUTOFF {
         let reverse_angle = M2_PI - magnet.alpha.to_radians();

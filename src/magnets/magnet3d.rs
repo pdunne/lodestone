@@ -7,3 +7,11 @@ Copyright 2021 Peter Dunne */
 ///
 pub mod bulirsch;
 pub mod solenoid;
+
+#[derive(Debug, PartialEq)]
+pub enum Magnet3D {
+    Prism,
+    Cylinder,
+    Sphere,
+    Custom,
+}

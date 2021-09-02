@@ -8,13 +8,10 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::utils::conversions::Angle;
 
-use crate::magnets::{GetCenter, GetField, Magnet};
+use crate::magnets::{GetCenter, GetField, MagnetTrait};
 use crate::points::{Point2, PolarPoint};
 use crate::MagnetError;
-use anyhow::Result;
 use std::fmt;
-// use std::ops::{Add, Mul};
-// use crate::MagnetError;
 
 /// A 2D circular magnet
 ///
@@ -76,11 +73,11 @@ impl Circle {
     {
         let phi_rad = phi.to_radians();
         Circle {
-            radius: radius,
+            radius,
             center: center.center(),
-            alpha: alpha,
-            jr: jr,
-            phi: phi,
+            alpha,
+            jr,
+            phi,
             jx: jr * phi_rad.cos(),
             jy: jr * phi_rad.sin(),
         }
@@ -105,8 +102,7 @@ impl fmt::Display for Circle {
     }
 }
 
-// impl Magnet for Circle {}
-impl Magnet<[f64; 2], Point2, f64, PolarPoint> for Circle {
+impl MagnetTrait<[f64; 2], Point2, f64, PolarPoint> for Circle {
     /// Returns the field due to a Circle
     // fn field(&self, point: &[f64; 2]) -> Result<[f64; 2], MagnetError> {
     //     // get_field_circle(&self, point)

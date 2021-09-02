@@ -4,15 +4,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
 
 use crate::points::Point2;
-use crate::{MagnetError, PI};
-use anyhow::Result;
+use crate::{MagnetError, M4_PI};
 
 /// Returns magnetic field due to an infinite current sheet
 pub fn sheet_field(x: &f64, y: &f64, h: &f64, kr: &f64) -> Result<Point2, MagnetError> {
     let x_sq = x.powi(2);
     let y_sq = y.powi(2);
     let h_sq = h.powi(2);
-    let prefac = kr / 4.0 / PI;
+    let prefac = kr / M4_PI;
 
     let y_plus_h = y + h;
     let y_minus_h = y - h;

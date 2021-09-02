@@ -6,9 +6,10 @@ Copyright 2021 Peter Dunne */
 //!
 
 use crate::{
-    magnets::{Circle, MagnetType2D, Rectangle},
+    magnets::{Circle, Magnet2D, MagnetVec2D, Rectangle},
     points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2},
     utils::conversions::Angle,
+    MagnetError,
 };
 use serde_derive::{Deserialize, Serialize};
 
@@ -21,7 +22,7 @@ pub struct Configure {
     pub magnet: Vec<MagnetKind>,
 }
 
-/// Enum for distinguishing magnet types
+/// Convenience enum containing 2D and 3D magnet types used for serializing/deserializing
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum MagnetKind {
@@ -51,12 +52,12 @@ impl ReadRectangle {
         alpha_angle: String,
     ) -> Self {
         ReadRectangle {
-            size: size,
-            center: center,
-            magnetisation: magnetisation,
-            mag_angle: mag_angle,
-            alpha: alpha,
-            alpha_angle: alpha_angle,
+            size,
+            center,
+            magnetisation,
+            mag_angle,
+            alpha,
+            alpha_angle,
         }
     }
 
@@ -98,12 +99,12 @@ impl ReadCircle {
         alpha_angle: String,
     ) -> Self {
         ReadCircle {
-            size: size,
-            center: center,
-            magnetisation: magnetisation,
-            mag_angle: mag_angle,
-            alpha: alpha,
-            alpha_angle: alpha_angle,
+            size,
+            center,
+            magnetisation,
+            mag_angle,
+            alpha,
+            alpha_angle,
         }
     }
     pub fn default() -> Self {
@@ -195,7 +196,7 @@ fn default_custom_grid2d() -> ReadGridCustom {
 
 /// Reads in a configuration TOML file and returns a Vec of 2D magnets, and the
 /// points to calculate over
-pub fn parse_config_file(infile: &str) -> anyhow::Result<(Vec<MagnetType2D>, PointVec2)> {
+pub fn parse_config_file(infile: &str) -> Result<(MagnetVec2D, PointVec2), MagnetError> {
     let config = read_config_file(infile)?;
     let magnet_list = generate_magnets(config.magnet)?;
     let points = generate_points(config.grid)?;
@@ -204,16 +205,14 @@ pub fn parse_config_file(infile: &str) -> anyhow::Result<(Vec<MagnetType2D>, Poi
 }
 
 /// Reads in a configuration TOML file and returns a structured Config
-pub fn read_config_file(infile: &str) -> anyhow::Result<Configure> {
-    // let config_path = std::env::args().nth(1).unwrap();
-
-    let config_text = std::fs::read_to_string(infile).unwrap();
+pub fn read_config_file(infile: &str) -> Result<Configure, MagnetError> {
+    let config_text = std::fs::read_to_string(infile)?;
 
     Ok(toml::from_str(&config_text)?)
 }
 
 /// Generates the points
-pub fn generate_points(grid: GridKind2D) -> anyhow::Result<PointVec2> {
+pub fn generate_points(grid: GridKind2D) -> Result<PointVec2, MagnetError> {
     let points = match grid {
         GridKind2D::Point(val) => PointVec2::new(vec![val.point[0]], vec![val.point[1]]),
         GridKind2D::Line(val) => gen_line_2d(
@@ -233,11 +232,11 @@ pub fn generate_points(grid: GridKind2D) -> anyhow::Result<PointVec2> {
     Ok(points)
 }
 
-pub fn generate_magnets(magnets: Vec<MagnetKind>) -> anyhow::Result<Vec<MagnetType2D>> {
-    let mut magnet_list = Vec::<MagnetType2D>::new();
+pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetError> {
+    let mut magnet_list = MagnetVec2D::new();
     for mag in magnets {
         magnet_list.push(match mag {
-            MagnetKind::Circle(val) => MagnetType2D::Circle(Circle::new(
+            MagnetKind::Circle(val) => Magnet2D::Circle(Circle::new(
                 val.size,
                 (val.center[0], val.center[1]),
                 match val.alpha_angle.as_str() {
@@ -248,7 +247,7 @@ pub fn generate_magnets(magnets: Vec<MagnetKind>) -> anyhow::Result<Vec<MagnetTy
                 val.magnetisation[0],
                 Angle::Degrees(val.magnetisation[1]),
             )),
-            MagnetKind::Rectangle(val) => MagnetType2D::Rectangle(Rectangle::new(
+            MagnetKind::Rectangle(val) => Magnet2D::Rectangle(Rectangle::new(
                 val.size[0],
                 val.size[1],
                 (val.center[0], val.center[1]),
@@ -305,7 +304,7 @@ numPoints = 2"#;
         let magnet_list = generate_magnets(config.magnet).unwrap();
         let points = generate_points(config.grid).unwrap();
 
-        let mut magnet_list_vec = Vec::<MagnetType2D>::new();
+        let mut magnet_list_vec = MagnetVec2D::new();
 
         // Create Magnets
         let m1 = Rectangle::new(
@@ -316,7 +315,7 @@ numPoints = 2"#;
             1.0,
             Angle::Degrees(90.0),
         );
-        magnet_list_vec.push(MagnetType2D::Rectangle(m1));
+        magnet_list_vec.push(Magnet2D::Rectangle(m1));
         let m2 = Rectangle::new(
             1.0,
             1.0,
@@ -325,7 +324,7 @@ numPoints = 2"#;
             -1.0,
             Angle::Degrees(90.0),
         );
-        magnet_list_vec.push(MagnetType2D::Rectangle(m2));
+        magnet_list_vec.push(Magnet2D::Rectangle(m2));
         let point_vec = PointVec2::new(vec![0.0, 0.0], vec![-1.01, 0.010000000000000009]);
 
         assert_eq!(points, point_vec);

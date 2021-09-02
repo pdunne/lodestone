@@ -159,7 +159,7 @@ impl Points2 for Point2 {
     }
 
     fn to_polar(&self) -> PolarPoint {
-        cart2pol(&self)
+        cart2pol(self)
     }
 
     fn magnitude_squared(&self) -> f64 {

@@ -67,5 +67,5 @@ pub const ERR_CUTOFF: f64 = 1e-12;
 /// Maximum number of elements allowed in an array inside a PointArray struct.
 /// 10,000.
 ///
-/// This ensures there is no stack overflow
+/// This ensures there is no stack overflow when using stack allocated Point arrays.
 pub const STACK_MAX: usize = 10000;

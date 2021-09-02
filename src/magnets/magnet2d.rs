@@ -24,28 +24,30 @@ pub use line_field::*;
 pub use polygon::*;
 pub use rectangle::*;
 
-use crate::{config::MagnetKind, magnets::Magnet};
+use crate::MagnetError;
+use crate::config::magnet2d_to_toml;
+use crate::config::MagnetKind;
+use crate::magnets::MagnetTrait;
 
 /// Magnet2D Traits
-pub trait Magnet2D<POINT, CENTER, SIZE, MAG>: Magnet<POINT, CENTER, SIZE, MAG> {}
+pub trait MagnetTrait2D<POINT, CENTER, SIZE, MAG>: MagnetTrait<POINT, CENTER, SIZE, MAG> {}
 
-use crate::config::magnet2d_to_toml;
+use serde_derive::{Deserialize, Serialize};
+
 /// Enum to store the different 2D magnet types.
 ///
 /// This allows us to create a Vec<MagnetType2D>, and access the fields of the magnet
 /// struct with a match routine.
 ///
-use serde_derive::{Deserialize, Serialize};
-
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
-pub enum MagnetType2D {
+pub enum Magnet2D {
     Rectangle(Rectangle),
     Circle(Circle),
 }
 
-impl MagnetType2D {
+impl Magnet2D {
     /// Returns serialisable struct for saving to a TOML file
-    pub fn to_toml_struct(&self) -> anyhow::Result<MagnetKind> {
+    pub fn to_toml_struct(&self) -> Result<MagnetKind, MagnetError> {
         magnet2d_to_toml(self)
     }
 }

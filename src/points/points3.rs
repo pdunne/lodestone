@@ -1,4 +1,3 @@
-// use crate::utils::points::Points;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -16,6 +15,11 @@ impl Point3 {
             y: y.into(),
             z: z.into(),
         }
+    }
+
+    /// Returns a point struct as a tuple
+    pub fn as_tuple(&self) -> (f64, f64, f64) {
+        (self.x, self.y, self.z)
     }
 }
 

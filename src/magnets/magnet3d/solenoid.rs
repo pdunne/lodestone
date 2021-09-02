@@ -1,11 +1,11 @@
 use crate::magnets::magnet3d::bulirsch::cel;
 use crate::points::Point2;
-use crate::PI;
+use crate::{MagnetError, PI};
 // use crate::magnets::
 
 /// Calculate the magnetic field due to a solenoid at any point
 /// returns Bz,Br as a Point2 structure
-pub fn solenoid_field(a: f64, b: f64, rho: f64, z: f64, b_0: f64) -> Point2 {
+pub fn solenoid_field(a: f64, b: f64, rho: f64, z: f64, b_0: f64) -> Result<Point2, MagnetError> {
     let zp = z + b;
     let zn = z - b;
 
@@ -30,5 +30,5 @@ pub fn solenoid_field(a: f64, b: f64, rho: f64, z: f64, b_0: f64) -> Point2 {
         * (beta_p * cel(kp, gamma.powi(2), 1.0, gamma)
             - beta_n * cel(kn, gamma.powi(2), 1.0, gamma));
 
-    Point2::new(b_z, b_r)
+    Ok(Point2::new(b_z, b_r))
 }

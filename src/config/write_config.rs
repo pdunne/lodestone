@@ -1,10 +1,15 @@
 use super::{MagnetKind, ReadCircle, ReadRectangle};
 use crate::{
-    magnets::{Magnet, MagnetType2D},
+    magnets::{Magnet2D, MagnetTrait},
     points::PointVec2,
+    MagnetError,
 };
+// use indicatif::ProgressBar;
 use serde_derive::{Deserialize, Serialize};
 
+use std::fs::File;
+
+/// Struct containing the results of the calculation,
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SimResult {
@@ -16,16 +21,16 @@ pub struct SimResult {
 impl SimResult {
     pub fn new(magnets: Vec<MagnetKind>, points: PointVec2, field: PointVec2) -> Self {
         SimResult {
-            magnets: magnets,
-            points: points,
-            field: field,
+            magnets,
+            points,
+            field,
         }
     }
 }
 
-pub fn magnet2d_to_toml(magnet: &MagnetType2D) -> anyhow::Result<MagnetKind> {
+pub fn magnet2d_to_toml(magnet: &Magnet2D) -> Result<MagnetKind, MagnetError> {
     Ok(match magnet {
-        MagnetType2D::Circle(mag) => MagnetKind::Circle(ReadCircle::new(
+        Magnet2D::Circle(mag) => MagnetKind::Circle(ReadCircle::new(
             mag.size(),
             [mag.center.x, mag.center.y],
             [mag.jr, mag.phi.to_degrees()],
@@ -33,7 +38,7 @@ pub fn magnet2d_to_toml(magnet: &MagnetType2D) -> anyhow::Result<MagnetKind> {
             mag.alpha.to_degrees(),
             "degrees".to_string(),
         )),
-        MagnetType2D::Rectangle(mag) => MagnetKind::Rectangle(ReadRectangle::new(
+        Magnet2D::Rectangle(mag) => MagnetKind::Rectangle(ReadRectangle::new(
             mag.size(),
             [mag.center.x, mag.center.y],
             [mag.jr, mag.phi.to_degrees()],
@@ -44,23 +49,25 @@ pub fn magnet2d_to_toml(magnet: &MagnetType2D) -> anyhow::Result<MagnetKind> {
     })
 }
 
-pub fn gen_magnet_toml_2d(magnets: &Vec<MagnetType2D>) -> anyhow::Result<Vec<MagnetKind>> {
+pub fn gen_magnet_toml_2d(magnets: &[Magnet2D]) -> Result<Vec<MagnetKind>, MagnetError> {
     let mut magnet_list = Vec::<MagnetKind>::with_capacity(magnets.len());
     for mag in magnets {
-        magnet_list.push(mag.to_toml_struct().unwrap())
+        magnet_list.push(mag.to_toml_struct()?)
     }
 
     Ok(magnet_list)
 }
 
-pub fn save_results(sim_result: &SimResult, outfile: &str) {
-    let out_string = serde_json::to_string(sim_result).unwrap();
-    println!("Outfile: {}", outfile);
-    println!("{:?}", out_string);
+pub fn save_results(sim_result: &SimResult, outfile: &str) -> Result<(), MagnetError> {
+    // serde_json::to_string(sim_result)?;
+    let file = File::create(outfile)?;
+    // let pb = ProgressBar::new(self.x.len() as u64);
+    serde_json::to_writer(file, sim_result)?;
+    Ok(())
 }
 
 // Horrible kludge, don't use.
-// pub fn points_to_toml(points: &PointVec2) -> anyhow::Result<GridKind2D> {
+// pub fn points_to_toml(points: &PointVec2) -> Result<GridKind2D> {
 //     Ok(GridKind2D::Custom(ReadGridCustom {
 //         x: points.x.clone(),
 //         y: points.y.clone(),
@@ -78,7 +85,7 @@ mod tests {
 
     #[test]
     pub fn test_magnet_to_toml_struct() {
-        let m1 = MagnetType2D::Rectangle(Rectangle::default());
+        let m1 = Magnet2D::Rectangle(Rectangle::default());
         let mag_toml = m1.to_toml_struct().unwrap();
         let mag_string = toml::to_string(&mag_toml).unwrap();
         let comp_string = "kind = \"rectangle\"\nsize = [1.0, 1.0]\ncenter = [0.0, 0.0]\nmagnetisation = [1.0, 90.0]\nmagAngle = \"degrees\"\nalpha = 0.0\nalphaAngle = \"degrees\"\n".to_string();
@@ -88,11 +95,11 @@ mod tests {
 
     #[test]
     pub fn test_magnet_array_to_toml_struct() {
-        let mut magnet_list = Vec::<MagnetType2D>::new();
+        let mut magnet_list = Vec::<Magnet2D>::new();
 
-        let m1 = MagnetType2D::Rectangle(Rectangle::default());
+        let m1 = Magnet2D::Rectangle(Rectangle::default());
         magnet_list.push(m1);
-        let m2 = MagnetType2D::Rectangle(Rectangle::default());
+        let m2 = Magnet2D::Rectangle(Rectangle::default());
         magnet_list.push(m2);
 
         let mag_toml = gen_magnet_toml_2d(&magnet_list).unwrap();

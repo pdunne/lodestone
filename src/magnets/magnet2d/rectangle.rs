@@ -10,11 +10,10 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 // use std::ops::{Add, Mul};
 
-use crate::magnets::{GetCenter, GetField, Magnet};
+use crate::magnets::{GetCenter, GetField, MagnetTrait};
 use crate::points::{Point2, PolarPoint};
 use crate::utils::conversions::Angle;
 use crate::MagnetError;
-// use crate::MagnetError;
 
 /// A 2D rectangular magnet
 ///
@@ -104,12 +103,12 @@ impl Rectangle {
         let phi_rad = phi.to_radians();
 
         Rectangle {
-            width: width,
-            height: height,
+            width,
+            height,
             center: center.center(),
-            alpha: alpha,
-            jr: jr,
-            phi: phi,
+            alpha,
+            jr,
+            phi,
             jx: jr * phi_rad.cos(),
             jy: jr * phi_rad.sin(),
             a: width / 2.0,
@@ -137,7 +136,7 @@ impl fmt::Display for Rectangle {
     }
 }
 
-impl Magnet<[f64; 2], Point2, [f64; 2], PolarPoint> for Rectangle {
+impl MagnetTrait<[f64; 2], Point2, [f64; 2], PolarPoint> for Rectangle {
     /// Returns the field due to a Rectangle
     // fn field(&self, point: &[f64; 2]) -> anyhow::Result<[f64; 2], MagnetError> {
     //     // get_field_rectangle(&self, point, x)

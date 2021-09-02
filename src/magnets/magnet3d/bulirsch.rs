@@ -5,8 +5,8 @@ Copyright 2021 Peter Dunne */
 
 use core::f64;
 
-use crate::{NAN, PI};
-const ERRTOL: f64 = 1e-6;
+use crate::{FP_CUTOFF, NAN, PI_2};
+#[allow(clippy::many_single_char_names)]
 
 /// Bulirsch's  complete elliptic integral
 /// See NIST Handbook of Mathematical Functions, [http://dlmf.nist.gov/19.2](http://dlmf.nist.gov/19.2)
@@ -72,7 +72,7 @@ pub fn cel(kc: f64, p: f64, c: f64, s: f64) -> f64 {
         g = em;
         em += k;
 
-        while (g - k).abs() > g * ERRTOL {
+        while (g - k).abs() > g * FP_CUTOFF {
             k = 2.0 * kk.sqrt();
             kk = k * em;
             f = cc;
@@ -83,7 +83,7 @@ pub fn cel(kc: f64, p: f64, c: f64, s: f64) -> f64 {
             g = em;
             em += k;
         }
-        (PI / 2.0) * (ss + cc * em) / (em * (em + pp))
+        (PI_2) * (ss + cc * em) / (em * (em + pp))
     }
 }
 

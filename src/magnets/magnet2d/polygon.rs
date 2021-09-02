@@ -9,7 +9,7 @@ use std::fmt;
 use std::ops::{Add, Mul};
 // PointVecs2, PolarPoint
 use crate::points::{Point2, PointVec2};
-use crate::PI;
+use crate::{MagnetError, PI};
 
 #[derive(Clone, Debug)]
 pub struct Polygon {
@@ -57,7 +57,7 @@ impl Polygon {
     {
         // let num_vertices = Vertices::Some.x().len();
         let (returned_vert, num_vertices) =
-            return_vert_num_vert(&vertices, &center.center(), &alpha.into());
+            return_vert_num_vert(&vertices, &center.center(), &alpha.into()).unwrap();
 
         Polygon {
             center: center.center(),
@@ -67,7 +67,7 @@ impl Polygon {
             jx: jr.into() * phi.into().cos(),
             jy: jr.into() * phi.into().sin(),
             vertices: returned_vert,
-            num_vertices: num_vertices,
+            num_vertices,
         }
     }
 }
@@ -131,9 +131,9 @@ fn generate_polygon(
     center: &Point2,
     param: &PolyDimension,
     alpha: &f64,
-) -> PointVec2 {
+) -> Result<PointVec2, MagnetError> {
     assert!(*num_vertices > 2);
-    let offset = offset_angle(num_vertices, &alpha);
+    let offset = offset_angle(num_vertices, alpha);
     let radius = get_radius(num_vertices, param);
     let xv: Vec<f64> = (0..*num_vertices)
         .into_iter()
@@ -144,20 +144,20 @@ fn generate_polygon(
         .map(|k| center.y + radius * ((2.0 * PI * k as f64 / *num_vertices as f64) + offset).cos())
         .collect();
 
-    PointVec2::new(xv, yv)
+    Ok(PointVec2::new(xv, yv))
 }
 
 /// Returns a tuple of the Vertices and number of vertices
-fn return_vert_num_vert(
+pub fn return_vert_num_vert(
     vertex_wrapper: &Vertices,
     center: &Point2,
     // param: &PolyDimension,
     alpha: &f64,
-) -> (PointVec2, usize) {
+) -> Result<(PointVec2, usize), MagnetError> {
     match vertex_wrapper {
-        Vertices::Regular(val, param) => (generate_polygon(val, center, param, alpha), *val),
+        Vertices::Regular(val, param) => Ok((generate_polygon(val, center, param, alpha)?, *val)),
         // TODO: Replace clone with something smarter
-        Vertices::Custom(val) => (val.clone(), val.x.len()),
+        Vertices::Custom(val) => Ok((val.clone(), val.x.len())),
     }
 }
 
@@ -204,7 +204,7 @@ mod tests {
         let param = PolyDimension::Side(2.0);
         let vertex_wrapper = Vertices::Regular(4, param);
         let (vertices, num_vertices) =
-            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0);
+            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0).unwrap();
         let comp_vert = PointVec2 {
             x: vec![1.0, 1.0000000000000002, -1.0, -1.0000000000000002],
             y: vec![1.0000000000000002, -1.0, -1.0000000000000002, 1.0],
@@ -218,7 +218,7 @@ mod tests {
         let param = PolyDimension::Side(3.0);
         let vertex_wrapper = Vertices::Regular(6, param);
         let (vertices, num_vertices) =
-            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0);
+            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0).unwrap();
         let comp_vert = PointVec2 {
             x: vec![
                 1.5,
@@ -248,7 +248,7 @@ mod tests {
             y: vec![1.0, -1.0, -1.0, 1.0],
         });
         let (vertices, num_vertices) =
-            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0);
+            return_vert_num_vert(&vertex_wrapper, &Point2::default(), &0.0).unwrap();
         let comp_vert = PointVec2 {
             x: vec![1.0, 1.0, -1.0, -1.0],
             y: vec![1.0, -1.0, -1.0, 1.0],

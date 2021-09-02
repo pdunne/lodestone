@@ -9,13 +9,21 @@ pub enum MagnetError {
 
     /// When parsing floats fail
     #[error("Could not parse float: {0}")]
-    ParseError(std::num::ParseFloatError),
+    ParseFloatError(std::num::ParseFloatError),
+
+    #[error("TOML parse error: {0}")]
+    TomlParseError(#[from] toml::de::Error),
+
+    #[error("Could not parse file: {0}")]
+    ParseError(#[from] serde_json::Error),
 
     // #[error("Could not parse float: {0}")]
     // StackError(),
-    /// Generic custom errors, string is passed to it
-    #[error("Error: {0}")]
-    CustomError(&'static str),
+    // /// Generic custom errors, string is passed to it
+    // #[error("Error: {0}")]
+    // CustomError(&'static str),
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
 }
 
 impl From<std::io::Error> for MagnetError {
@@ -26,12 +34,12 @@ impl From<std::io::Error> for MagnetError {
 
 impl From<std::num::ParseFloatError> for MagnetError {
     fn from(e: std::num::ParseFloatError) -> Self {
-        MagnetError::ParseError(e)
+        MagnetError::ParseFloatError(e)
     }
 }
 
-impl From<&'static str> for MagnetError {
-    fn from(e: &'static str) -> Self {
-        MagnetError::CustomError(e)
-    }
-}
+// impl From<&'static str> for MagnetError {
+//     fn from(e: &'static str) -> Self {
+//         MagnetError::CustomError(e)
+//     }
+// }

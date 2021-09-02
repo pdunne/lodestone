@@ -7,10 +7,13 @@ Copyright 2021 Peter Dunne */
 //! an array of structs, but not as efficient as struct of arrays
 //!//!
 
-use crate::magnets::{get_field_2d, MagnetType2D};
+use crate::magnets::{get_field_2d, Magnet2D};
 use crate::points::rotation_2d::rotate_tuple2;
 use crate::points::{internal_norm, Point2, Points};
 use rayon::prelude::*;
+
+// use indicatif::{ParallelProgressIterator, ProgressBar};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde_derive::{Deserialize, Serialize};
 
 /// Traits for PointVec2
@@ -76,7 +79,7 @@ impl PointVec2 {
     pub fn new(x: Vec<f64>, y: Vec<f64>) -> Self {
         // TODO: Change assert to error!
         assert!(x.len() == y.len(), "Input vectors must be the same length!");
-        Self { x: x, y: y }
+        Self { x, y }
     }
 }
 
@@ -424,7 +427,7 @@ impl PointVecs2 for PointVec2 {
             .x
             .par_iter()
             .zip(self.y.par_iter())
-            .map(|(x, y)| rotate_tuple2(&(*x, *y), alpha))
+            .map(|(x, y)| rotate_tuple2((x, y), alpha))
             .collect::<(Vec<f64>, Vec<f64>)>();
         PointVec2::new(x_rot, y_rot)
     }
@@ -487,13 +490,16 @@ impl PointVec2 {
     }
 
     /// Returns the magnetic field for a series of points due to all magnets
-    pub fn get_field(&self, magnet_list: &Vec<MagnetType2D>) -> PointVec2 {
+    pub fn get_field(&self, magnet_list: &[Magnet2D]) -> PointVec2 {
+        // let pb = ProgressBar::new(self.x.len() as u64);
         let (x_local, y_local) = self
             .x
             .par_iter()
             .zip(self.y.par_iter())
+            // .progress_with(pb)
             .map(|(x, y)| get_field_2d(magnet_list, (x, y)).unwrap())
             .collect::<(Vec<f64>, Vec<f64>)>();
+
         PointVec2::new(x_local, y_local)
     }
 
@@ -516,7 +522,6 @@ pub fn cart_prod_2d_vec(start: &Point2, stop: &Point2, num_points: &usize) -> Po
     let step_y = distance.y / (num_points - 1) as f64;
 
     let (xx, yy): (Vec<f64>, Vec<f64>) = xs
-        .clone()
         .flat_map(|x| {
             ys.clone()
                 .map(move |y| (start.x + (x as f64) * step_x, start.y + y as f64 * step_y))
