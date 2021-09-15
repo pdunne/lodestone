@@ -19,7 +19,8 @@ mod magnet3d;
 pub use base::*;
 
 pub use magnet2d::{
-    get_field_2d, loop_field_2d, sheet_field, Circle, Magnet2D, MagnetTrait2D, Rectangle,
+    get_field_2d, loop_field_2d, sheet_field, Circle, Magnet2D, MagnetTrait2D, PolyDimension,
+    Polygon, Rectangle, Vertices,
 };
 
 pub use magnet3d::bulirsch;

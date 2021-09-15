@@ -3,15 +3,47 @@
 # allowed kinds: 
 # 2D: `rectangle`, `circle`
 
+
+[[magnet]]
+kind = "polygon"
+regular = 5
+size = 1.0
+sizeType = "apothem"
+center = [-2.0, 2.0]
+magnetisation = [1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+# [[magnet]]
+# kind = "polygon"
+# regular = 5
+# size = 0.5
+# sizeType = "apothem"
+# center = [-2.0, 2.0]
+# magnetisation = [-1.0, 90.0]
+# magAngle = "degrees"
+# alpha = 0.0
+# alphaAngle = "degrees"
+
+
+# [[magnet]]
+# kind = "rectangle"
+# size = [1.0, 1.0]
+# center = [-0.5, -0.5]
+# magnetisation = [1.0, 90.0]
+# magAngle = "degrees"
+# alpha = 30.0
+# alphaAngle = "degrees"
+
 [[magnet]]
 kind = "rectangle"
 size = [1.0, 1.0]
 center = [-1.0, -0.5]
 magnetisation = [1.0, 90.0]
 magAngle = "degrees"
-alpha = 30.0
+alpha = 0.0
 alphaAngle = "degrees"
-
 
 [[magnet]]
 kind = "rectangle"
@@ -19,13 +51,13 @@ size = [1.0, 1.0]
 center = [1.0, -0.5]
 magnetisation = [-1.0, 0.0]
 magAngle = "degrees"
-alpha = -40.0
+alpha = 0.0
 alphaAngle = "degrees"
 
 [[magnet]]
 kind = "circle"
 size = 1.0
-center = [0.0, 1.0]
+center = [2.0, 2.0]
 magnetisation = [0.5, 90.0]
 alpha = 0.0
 
@@ -34,8 +66,8 @@ alpha = 0.0
 
 [grid]
 kind = "grid"
-start = [-2.0, -2.0]
-stop = [2.0, 2.0]
+start = [-4.0, -4.0]
+stop = [4.0, 4.0]
 numPoints = 100
 units = 1e-3 # mm
 
@@ -48,7 +80,7 @@ units = 1e-3 # mm
 
 # [grid]
 # kind = "point"
-# point = [0.0, 0.01]
+# point = [0.0, 1.1]
 
 # [grid]
 # kind = "custom"

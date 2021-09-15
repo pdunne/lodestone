@@ -1,4 +1,9 @@
-//! This test library and binary implements routines for calculating magnetic
+//! # Magnet-RS
+//!
+//! Magnet-RS is a library to calculate the magnetic fields of arbitrary polygons
+//! and polyheda in 2D and 3D.
+//!
+//! //! This test library and binary implements routines for calculating magnetic
 //! fields, written in Rust. A more complete Python version can be found on
 //! [Github](https://github.com/pdunne/pymagnet), or
 //! [PyPi](https://pypi.org/project/pymagnet/)
@@ -18,12 +23,10 @@
 
 use core::f64;
 
+pub mod config;
 pub mod magnets;
 pub mod points;
-pub mod routines;
 pub mod utils;
-
-pub mod config;
 
 mod error;
 pub use error::MagnetError;

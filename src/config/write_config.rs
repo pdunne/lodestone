@@ -1,4 +1,4 @@
-use super::{MagnetKind, ReadCircle, ReadRectangle};
+use super::{MagnetKind, ReadCircle, ReadPolygon, ReadRectangle};
 use crate::{
     magnets::{Magnet2D, MagnetTrait},
     points::PointVec2,
@@ -13,12 +13,16 @@ use std::fs::File;
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SimResult {
+    /// Array of magnets
     pub magnets: Vec<MagnetKind>,
+    /// Array of points
     pub points: PointVec2,
+    /// Array of calculated magnetic field
     pub field: PointVec2,
 }
 
 impl SimResult {
+    /// Generates new SimResult Struct
     pub fn new(magnets: Vec<MagnetKind>, points: PointVec2, field: PointVec2) -> Self {
         SimResult {
             magnets,
@@ -28,6 +32,7 @@ impl SimResult {
     }
 }
 
+/// Converts magnet to serializable struct `MagnetKind`
 pub fn magnet2d_to_toml(magnet: &Magnet2D) -> Result<MagnetKind, MagnetError> {
     Ok(match magnet {
         Magnet2D::Circle(mag) => MagnetKind::Circle(ReadCircle::new(
@@ -46,9 +51,21 @@ pub fn magnet2d_to_toml(magnet: &Magnet2D) -> Result<MagnetKind, MagnetError> {
             mag.alpha.to_degrees(),
             "degrees".to_string(),
         )),
+        //TODO: Finish this arm
+        Magnet2D::Polygon(mag) => MagnetKind::Polygon(ReadPolygon::new(
+            mag.num_vertices,
+            1.0,
+            "Side".to_string(),
+            mag.center.as_array(),
+            [mag.jr, mag.phi.to_degrees()],
+            "Degrees".to_string(),
+            mag.alpha.to_degrees(),
+            "Degrees".to_string(),
+        )),
     })
 }
 
+/// Converts magnet vector to vector of serializable `Magnetkind`
 pub fn gen_magnet_toml_2d(magnets: &[Magnet2D]) -> Result<Vec<MagnetKind>, MagnetError> {
     let mut magnet_list = Vec::<MagnetKind>::with_capacity(magnets.len());
     for mag in magnets {
@@ -58,6 +75,7 @@ pub fn gen_magnet_toml_2d(magnets: &[Magnet2D]) -> Result<Vec<MagnetKind>, Magne
     Ok(magnet_list)
 }
 
+/// Writes `SimResult` struct to file
 pub fn save_results(sim_result: &SimResult, outfile: &str) -> Result<(), MagnetError> {
     // serde_json::to_string(sim_result)?;
     let file = File::create(outfile)?;

@@ -6,19 +6,21 @@ use crate::MagnetError;
 ///
 /// By using an enum `Magnet2D` we can match each magnet type to access the underlying methods.
 pub fn loop_field_2d(magnet_list: &[Magnet2D], point: &Point2) -> Result<Point2, MagnetError> {
-    let mut local_field = Point2::zero(); 
+    let mut local_field = Point2::zero();
 
     // loop over magnets in list
     for mag in magnet_list {
         // sum fields for each magnet type
-        match *mag {
+        match mag {
             Magnet2D::Rectangle(magnet) => local_field += magnet.field(point)?,
             Magnet2D::Circle(magnet) => local_field += magnet.field(point)?,
+            Magnet2D::Polygon(magnet) => local_field += magnet.field(point)?,
         }
     }
     Ok(local_field)
 }
 
+/// Returns the magnetic field due to an array of magnets `magnet_list`, at a point `point`
 pub fn get_field_2d(
     magnet_list: &[Magnet2D],
     point: (&f64, &f64),
@@ -29,9 +31,10 @@ pub fn get_field_2d(
     // loop over magnets in list
     for mag in magnet_list {
         // sum fields for each magnet type
-        match *mag {
+        match mag {
             Magnet2D::Rectangle(magnet) => local_field += magnet.field(&point)?,
             Magnet2D::Circle(magnet) => local_field += magnet.field(&point)?,
+            Magnet2D::Polygon(magnet) => local_field += magnet.field(&point)?,
         }
     }
     Ok(local_field.as_tuple())

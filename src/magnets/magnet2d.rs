@@ -24,10 +24,10 @@ pub use line_field::*;
 pub use polygon::*;
 pub use rectangle::*;
 
-use crate::MagnetError;
 use crate::config::magnet2d_to_toml;
 use crate::config::MagnetKind;
 use crate::magnets::MagnetTrait;
+use crate::MagnetError;
 
 /// Magnet2D Traits
 pub trait MagnetTrait2D<POINT, CENTER, SIZE, MAG>: MagnetTrait<POINT, CENTER, SIZE, MAG> {}
@@ -41,8 +41,12 @@ use serde_derive::{Deserialize, Serialize};
 ///
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub enum Magnet2D {
+    /// 2D rectangular magnet
     Rectangle(Rectangle),
+    /// 2D circular magnet
     Circle(Circle),
+    ///
+    Polygon(Polygon),
 }
 
 impl Magnet2D {

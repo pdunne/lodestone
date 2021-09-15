@@ -18,7 +18,9 @@ pub type MagnetList = Vec<MagnetKind>;
 /// Convenience enum containing 2D and 3D magnet types.
 #[derive(Debug, PartialEq)]
 pub enum Magnet {
+    /// 2D Magnet
     Magnet2D(Magnet2D),
+    /// 3D Magnet
     Magnet3D(Magnet3D),
 }
 

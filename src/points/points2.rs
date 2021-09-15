@@ -13,7 +13,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
-/// Point2 struct
+/// Point2 struct, fields: x,y
 #[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct Point2 {
     ///x coordinate
@@ -35,6 +35,11 @@ impl Point2 {
     /// Returns a point struct as a tuple
     pub fn as_tuple(&self) -> (f64, f64) {
         (self.x, self.y)
+    }
+
+    /// Returns a point struct as a tuple
+    pub fn as_array(&self) -> [f64; 2] {
+        [self.x, self.y]
     }
 }
 

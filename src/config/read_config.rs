@@ -6,8 +6,8 @@ Copyright 2021 Peter Dunne */
 //!
 
 use crate::{
-    magnets::{Circle, Magnet2D, MagnetVec2D, Rectangle},
-    points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2},
+    magnets::{Circle, Magnet2D, MagnetVec2D, PolyDimension, Polygon, Rectangle, Vertices},
+    points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2, PointVecs2},
     utils::conversions::Angle,
     MagnetError,
 };
@@ -18,7 +18,9 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Configure {
+    /// Grid of points to calculate ate
     pub grid: GridKind2D,
+    /// Vector of magnets
     pub magnet: Vec<MagnetKind>,
 }
 
@@ -26,8 +28,12 @@ pub struct Configure {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum MagnetKind {
+    /// Circular magnet
     Circle(ReadCircle),
+    /// Rectangular magnet
     Rectangle(ReadRectangle),
+
+    Polygon(ReadPolygon),
 }
 
 /// Stores input properties of a rectangular 2D magnet
@@ -43,6 +49,7 @@ pub struct ReadRectangle {
 }
 
 impl ReadRectangle {
+    /// Constructor function to generate a ReadRectangle
     pub fn new(
         size: [f64; 2],
         center: [f64; 2],
@@ -60,7 +67,7 @@ impl ReadRectangle {
             alpha_angle,
         }
     }
-
+    /// Default ReadReactangle
     pub fn default() -> Self {
         default_rectangle()
     }
@@ -90,6 +97,7 @@ pub struct ReadCircle {
 }
 
 impl ReadCircle {
+    /// Constructor function to generate a ReadCircle
     pub fn new(
         size: f64,
         center: [f64; 2],
@@ -107,6 +115,7 @@ impl ReadCircle {
             alpha_angle,
         }
     }
+    /// Default ReadCircle
     pub fn default() -> Self {
         default_circle()
     }
@@ -122,15 +131,77 @@ fn default_circle() -> ReadCircle {
         alpha_angle: "degrees".to_string(),
     }
 }
+//TODO: Make the struct read only regular polygons, and create a separate struct
+// for custom polygons (which read the vertices)
+/// Stores input properties of a polygon 2D magnet
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default = "default_polygon")]
+pub struct ReadPolygon {
+    regular: usize,
+    size: f64, //FIXME:Change field name?
+    size_type: String,
+    center: [f64; 2],
+    magnetisation: [f64; 2],
+    mag_angle: String,
+    alpha: f64,
+    alpha_angle: String,
+}
+
+impl ReadPolygon {
+    /// Constructor function to generate a ReadPolygon
+    pub fn new(
+        regular: usize,
+        size: f64,
+        size_type: String,
+        center: [f64; 2],
+        magnetisation: [f64; 2],
+        mag_angle: String,
+        alpha: f64,
+        alpha_angle: String,
+    ) -> Self {
+        ReadPolygon {
+            regular,
+            size,
+            size_type,
+            center,
+            magnetisation,
+            mag_angle,
+            alpha,
+            alpha_angle,
+        }
+    }
+    /// Default ReadReactangle
+    pub fn default() -> Self {
+        default_polygon()
+    }
+}
+
+fn default_polygon() -> ReadPolygon {
+    ReadPolygon {
+        regular: 4,
+        size: 1.0,
+        size_type: "side".to_lowercase().to_string(),
+        center: [0.0, 0.0],
+        magnetisation: [1.0, 90.0],
+        mag_angle: "degrees".to_string(),
+        alpha: 0.0,
+        alpha_angle: "degrees".to_string(),
+    }
+}
 
 /// Enum for distinguishing grid types
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(tag = "kind", rename_all = "camelCase")]
 pub enum GridKind2D {
+    /// Single point
     Point(ReadGrid0D),
+    /// Line of points
     Line(ReadGrid1D),
+    /// 2D regular grid of points
     Grid(ReadGrid2D),
+    /// Custom array of points
     Custom(ReadGridCustom),
+    /// None variant
     None,
 }
 
@@ -232,6 +303,7 @@ pub fn generate_points(grid: GridKind2D) -> Result<PointVec2, MagnetError> {
     Ok(points)
 }
 
+/// Generates magnet structures from input config file
 pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetError> {
     let mut magnet_list = MagnetVec2D::new();
     for mag in magnets {
@@ -239,7 +311,7 @@ pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetE
             MagnetKind::Circle(val) => Magnet2D::Circle(Circle::new(
                 val.size,
                 (val.center[0], val.center[1]),
-                match val.alpha_angle.as_str() {
+                match val.alpha_angle.to_lowercase().as_str() {
                     "degrees" => Angle::Degrees(val.alpha),
                     "radians" => Angle::Radians(val.alpha),
                     _ => Angle::Degrees(val.alpha),
@@ -251,16 +323,41 @@ pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetE
                 val.size[0],
                 val.size[1],
                 (val.center[0], val.center[1]),
-                match val.alpha_angle.as_str() {
+                match val.alpha_angle.to_lowercase().as_str() {
                     "degrees" => Angle::Degrees(val.alpha),
                     "radians" => Angle::Radians(val.alpha),
                     _ => Angle::Degrees(val.alpha),
                 },
                 val.magnetisation[0],
-                match val.mag_angle.as_str() {
+                match val.mag_angle.to_lowercase().as_str() {
                     "degrees" => Angle::Degrees(val.magnetisation[1]),
                     "radians" => Angle::Radians(val.magnetisation[1]),
                     _ => Angle::Degrees(val.magnetisation[1]),
+                },
+            )),
+            MagnetKind::Polygon(val) => Magnet2D::Polygon(Polygon::new(
+                (val.center[0], val.center[1]),
+                match val.alpha_angle.to_lowercase().as_str() {
+                    "degrees" => Angle::Degrees(val.alpha),
+                    "radians" => Angle::Radians(val.alpha),
+                    _ => Angle::Degrees(val.alpha),
+                },
+                val.magnetisation[0],
+                match val.mag_angle.to_lowercase().as_str() {
+                    "degrees" => Angle::Degrees(val.magnetisation[1]),
+                    "radians" => Angle::Radians(val.magnetisation[1]),
+                    _ => Angle::Degrees(val.magnetisation[1]),
+                },
+                if val.regular > 0 {
+                    let polydim = match val.size_type.to_lowercase().as_str() {
+                        "apothem" => PolyDimension::Apothem(val.size),
+                        "side" => PolyDimension::Side(val.size),
+                        "radius" => PolyDimension::Radius(val.size),
+                        _ => PolyDimension::Radius(val.size),
+                    };
+                    Vertices::Regular(val.regular, polydim)
+                } else {
+                    Vertices::Custom(PointVec2::zero(&8)) //FIXME:this
                 },
             )),
         });
@@ -330,5 +427,119 @@ numPoints = 2"#;
         assert_eq!(points, point_vec);
         assert_eq!(magnet_list[0], magnet_list_vec[0]);
         assert_eq!(magnet_list[1], magnet_list_vec[1]);
+    }
+
+    #[test]
+    fn test_toml_polygon() {
+        let config_text = r#"[[magnet]]
+kind = "polygon"
+regular = 4
+size = 2.0
+sizeType = "side"
+center = [-0.5, -0.5]
+magnetisation = [1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+[grid]
+kind = "line"
+start = [0.0, -1.01]
+stop = [0.0, 0.01]
+numPoints = 2"#;
+        let config: Configure = toml::from_str(&config_text).unwrap();
+        let magnet_list = generate_magnets(config.magnet).unwrap();
+        let points = generate_points(config.grid).unwrap();
+
+        let mut magnet_list_vec = MagnetVec2D::new();
+
+        // Create Magnets
+        let m1 = Polygon::new(
+            (-0.5, -0.5),
+            Angle::Degrees(0.0),
+            1.0,
+            Angle::Degrees(90.0),
+            Vertices::Regular(4, PolyDimension::Side(2.0)),
+        );
+        magnet_list_vec.push(Magnet2D::Polygon(m1));
+
+        let point_vec = PointVec2::new(vec![0.0, 0.0], vec![-1.01, 0.010000000000000009]);
+
+        assert_eq!(points, point_vec);
+        assert_eq!(magnet_list[0], magnet_list_vec[0]);
+    }
+
+    #[test]
+    fn test_square_polygon() {
+        let config_text = r#"[[magnet]]
+kind = "polygon"
+regular = 4
+size = 2.0
+sizeType = "side"
+center = [-0.5, -0.5]
+magnetisation = [1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+[grid]
+kind = "line"
+start = [0.0, -1.01]
+stop = [0.0, 0.01]
+numPoints = 2"#;
+        let config: Configure = toml::from_str(&config_text).unwrap();
+        let magnet_list = generate_magnets(config.magnet).unwrap();
+
+        let mut magnet_list_vec = MagnetVec2D::new();
+        // Create Magnets
+        let m1 = Polygon::new(
+            (-0.5, -0.5),
+            Angle::Degrees(0.0),
+            1.0,
+            Angle::Degrees(90.0),
+            Vertices::Regular(4, PolyDimension::Side(2.0)),
+        );
+
+        magnet_list_vec.push(Magnet2D::Polygon(m1));
+        assert!(true);
+
+        assert_eq!(magnet_list[0], magnet_list_vec[0]);
+    }
+
+    #[test]
+    fn test_hex_polygon() {
+        let config_text = r#"[[magnet]]
+kind = "polygon"
+regular = 6
+size = 3.0
+sizeType = "apothem"
+center = [1.2, 0.3]
+magnetisation = [2.0, 0.0]
+magAngle = "radians"
+alpha = 90.0
+alphaAngle = "radians"
+
+[grid]
+kind = "line"
+start = [0.0, -1.01]
+stop = [0.0, 0.01]
+numPoints = 2"#;
+        let config: Configure = toml::from_str(&config_text).unwrap();
+        let magnet_list = generate_magnets(config.magnet).unwrap();
+
+        let mut magnet_list_vec = MagnetVec2D::new();
+        // Create Magnets
+        let m1 = Polygon::new(
+            (1.2, 0.3),
+            Angle::Radians(90.0),
+            2.0,
+            Angle::Radians(0.0),
+            Vertices::Regular(6, PolyDimension::Apothem(3.0)),
+        );
+
+        magnet_list_vec.push(Magnet2D::Polygon(m1));
+        assert!(true);
+
+        assert_eq!(magnet_list[0], magnet_list_vec[0]);
     }
 }

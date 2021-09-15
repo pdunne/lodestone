@@ -64,6 +64,7 @@ impl Default for Circle {
 }
 
 impl Circle {
+    /// Constructor for 2D Circle magnet
     pub fn new<C>(radius: f64, center: C, alpha: Angle, jr: f64, phi: Angle) -> Circle
     where
         // R: Into<f64> + Mul<Output = R> + Add<Output = R> + Copy,

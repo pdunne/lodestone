@@ -2,8 +2,11 @@
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright 2021 Peter Dunne */
-//! # Points
-//! Generic traits for all points
+//! Generic traits for all point objects i.e. Points (2D, 3D, cartesian, polar,
+//! cylindrical, spherical), structs of
+//! heap allocated vectors, stack allocated arrays
+//!
+//! Note that struct of arrays is implemented but unused
 //!
 
 // mod point_array2;

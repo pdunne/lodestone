@@ -1,10 +1,22 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+Copyright 2021 Peter Dunne */
+
+//! Conversions
+//! The utils module contains utilities to convert between different coordinates
+//! systems and between degrees and radians
+//!
+
 use crate::points::{Point2, Points2, PolarPoint};
 use serde_derive::{Deserialize, Serialize};
 
 /// Angle enum for converting between radians and degrees
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize, Serialize)]
 pub enum Angle {
+    /// Angle stored in degrees
     Degrees(f64),
+    /// Angle stored in radians
     Radians(f64),
 }
 

@@ -1,6 +1,7 @@
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
+/// 3D point, with fields x,y,z
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub struct Point3 {
     pub x: f64,
@@ -29,7 +30,7 @@ impl fmt::Display for Point3 {
     }
 }
 
-// Traits:
+/// Point3 Traits:
 pub trait Points3 {
     type Output;
     fn add_p(&self, other: &Self) -> Self::Output;

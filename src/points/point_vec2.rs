@@ -76,6 +76,7 @@ impl Default for PointVec2 {
 }
 
 impl PointVec2 {
+    /// Constructor for PointVec2
     pub fn new(x: Vec<f64>, y: Vec<f64>) -> Self {
         // TODO: Change assert to error!
         assert!(x.len() == y.len(), "Input vectors must be the same length!");
@@ -503,6 +504,7 @@ impl PointVec2 {
         PointVec2::new(x_local, y_local)
     }
 
+    /// Returns Point2 for a given index of a PointVec2 struct
     pub fn to_point(&self, index: usize) -> Point2 {
         Point2::new(self.x[index], self.y[index])
     }
@@ -531,6 +533,8 @@ pub fn cart_prod_2d_vec(start: &Point2, stop: &Point2, num_points: &usize) -> Po
     PointVec2 { x: xx, y: yy }
 }
 
+/// Generates a line of points in 2D from a Point2 start point to a Point2 end point
+/// which is stored in a PointVec2 struct
 pub fn gen_line_2d(start: &Point2, stop: &Point2, num_points: &usize) -> PointVec2 {
     let xs = (0_usize..*num_points).into_par_iter();
     let ys = (0_usize..*num_points).into_par_iter();
@@ -658,19 +662,16 @@ mod tests {
         let vec = PointVec2::new(x, y).rotate(&90.0_f64.to_radians());
         let comp_vec = PointVec2::new(
             vec![-0.9999999999999999, -3.0, 1.9999999999999998, 4.0],
-            vec![0.9999999999999999, -2.0, -3.0, -0.9999999999999998],
+            vec![1.0, -1.9999999999999998, -3.0, -1.0000000000000002],
         );
         assert_eq!(vec, comp_vec);
     }
 
     #[test]
     fn test_rotate_90_full() {
-        let n_elem = 100;
+        let n_elem = 2;
         let vec = PointVec2::identity(&n_elem).rotate(&90.0_f64.to_radians());
-        let comp_vec = PointVec2::new(
-            vec![-0.9999999999999999; n_elem],
-            vec![0.9999999999999999; n_elem],
-        );
+        let comp_vec = PointVec2::new(vec![-0.9999999999999999; n_elem], vec![1.0; n_elem]);
         assert_eq!(vec, comp_vec);
     }
 

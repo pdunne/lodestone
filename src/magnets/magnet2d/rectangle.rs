@@ -89,6 +89,7 @@ impl Default for Rectangle {
 }
 
 impl Rectangle {
+    /// Constructor for 2D Rectangle magnet
     pub fn new<C>(
         width: f64,
         height: f64,

@@ -11,17 +11,24 @@ pub enum MagnetError {
     #[error("Could not parse float: {0}")]
     ParseFloatError(std::num::ParseFloatError),
 
+    /// Can't parse TOML struct
     #[error("TOML parse error: {0}")]
     TomlParseError(#[from] toml::de::Error),
 
+    /// SERDE error when unable to parse json struct/file
     #[error("Could not parse file: {0}")]
     ParseError(#[from] serde_json::Error),
+
+    ///Polygon side error
+    #[error("There must be at least 3 vertices")]
+    PolygonSideError(),
 
     // #[error("Could not parse float: {0}")]
     // StackError(),
     // /// Generic custom errors, string is passed to it
     // #[error("Error: {0}")]
     // CustomError(&'static str),
+    /// Any other error
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }

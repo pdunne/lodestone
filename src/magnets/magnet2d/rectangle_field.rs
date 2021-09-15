@@ -7,11 +7,10 @@ Copyright 2021 Peter Dunne */
 //!
 //! This submodule exposes
 
-// use crate::magnets::magnet2d::Rectangle;
-use super::Rectangle;
+#[allow(clippy::many_single_char_names)]
+use crate::magnets::magnet2d::Rectangle;
 use crate::points::{Point2, Points2};
 use crate::{MagnetError, FP_CUTOFF, I_2PI, I_4PI, M2_PI};
-#[allow(clippy::many_single_char_names)]
 
 /// Returns the magnetic field vector due to a rectangle of width `2a`, height  `2b`
 /// centered at the origin,
