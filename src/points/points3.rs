@@ -1,8 +1,9 @@
-// use crate::utils::points::Points;
+use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Copy, Clone, Debug, Default, PartialEq)]
+/// 3D point, with fields x,y,z
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct Point3 {
     pub x: f64,
     pub y: f64,
@@ -17,6 +18,16 @@ impl Point3 {
             z: z.into(),
         }
     }
+
+    /// Returns a point struct as a tuple
+    pub fn as_tuple(&self) -> (f64, f64, f64) {
+        (self.x, self.y, self.z)
+    }
+
+    /// Returns a point struct as a tuple
+    pub fn as_array(&self) -> [f64; 3] {
+        [self.x, self.y, self.z]
+    }
 }
 
 impl fmt::Display for Point3 {
@@ -25,7 +36,7 @@ impl fmt::Display for Point3 {
     }
 }
 
-// Traits:
+/// Point3 Traits:
 pub trait Points3 {
     type Output;
     fn add_p(&self, other: &Self) -> Self::Output;
@@ -50,6 +61,7 @@ pub trait Points3 {
     fn distance_from_point(&self, other: &Self) -> f64;
 
     fn dot(&self, other: &Self) -> f64;
+    fn cross(&self, other: &Self) -> Self::Output;
     fn unit(&self) -> Self::Output;
     fn zero() -> Self::Output;
     fn identity() -> Self::Output;
@@ -145,11 +157,11 @@ impl Points3 for Point3 {
         }
     }
 
-    fn with_z(&self, y: f64) -> Point3 {
+    fn with_z(&self, z: f64) -> Point3 {
         Point3 {
             x: self.x,
-            y,
-            z: self.z,
+            y: self.y,
+            z: z,
         }
     }
 
@@ -172,6 +184,13 @@ impl Points3 for Point3 {
 
     fn dot(&self, other: &Self) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z
+    }
+
+    fn cross(&self, other: &Self) -> Point3 {
+        let x = self.y * other.z - self.z * other.y;
+        let y = -(self.x * other.z - self.z * other.x);
+        let z = self.x * other.y - self.y * other.x;
+        Point3::new(x, y, z)
     }
 
     fn unit(&self) -> Point3 {
@@ -261,8 +280,8 @@ impl Neg for Point3 {
 
 #[cfg(test)]
 mod tests {
+    use crate::points::{Point3, Points3};
     use crate::utils::comparison::nearly_equal;
-    use crate::utils::points3::{Point3, Points3};
 
     #[test]
     fn sum_points() {
