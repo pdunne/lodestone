@@ -26,6 +26,14 @@ This is then saved to a JSON file with the following keys:
 
 ## Example
 
+Run the demo calculation:
+
+```bash
+magnet_rs -d
+```
+
+### Reading input files
+
 Save the following into `input.toml`
 
 ```toml
@@ -54,13 +62,13 @@ kind = "grid"
 start = [-2.0, -2.0]
 stop = [2.0, 2.0]
 numPoints = 101
-units = 1e-3 # mm 
+units = "mm" # NOTE: Units are not yet implemented 
 ```
 
 then run the following to save the data in a JSON file:
 
 ```bash
-magnet_rs input.toml -o out.json
+magnet_rs -i input.toml -o out.json
 ```
 
 ## Licensing

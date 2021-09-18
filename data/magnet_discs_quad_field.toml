@@ -39,4 +39,4 @@ start = [-4.0, -4.0]
 stop = [4.0, 4.0]
 numPoints = 200
 # Units are not yet implemented
-units = 1e-3 # mm 
+units = "mm" 

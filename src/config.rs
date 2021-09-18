@@ -7,8 +7,11 @@ Copyright 2021 Peter Dunne */
 //! command line argument configuration
 //!
 mod args;
+mod demo;
 mod read_config;
 mod write_config;
+
+pub use demo::*;
 
 pub use args::*;
 pub use read_config::*;

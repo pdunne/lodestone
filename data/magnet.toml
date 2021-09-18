@@ -60,8 +60,7 @@ kind = "grid"
 start = [-4.0, -4.0]
 stop = [4.0, 4.0]
 numPoints = 101
-# Units are not yet implemented
-units = 1e-3 # mm 
+units = "mm"
 
 
 # [grid]
@@ -70,7 +69,7 @@ units = 1e-3 # mm
 # stop = [0.0, 0.01]
 # numPoints = 100
 # # Units are not yet implemented
-# units = 1e-3 # mm 
+# units = "mm" 
 
 # [grid]
 # kind = "point"
