@@ -9,4 +9,4 @@ Copyright 2021 Peter Dunne */
 
 pub mod comparison;
 pub mod conversions;
-pub mod quaternion;
+// pub mod quaternion;

@@ -1,0 +1,40 @@
+# Example input file
+# Define the magnets you want 
+# allowed kinds: 
+# 2D: `rectangle`, `circle`
+
+[[magnet]]
+kind = "circle"
+size = 1.0
+center = [0.0, 2.0]
+magnetisation = [1.0, 90.0]
+alpha = 0.0
+
+[[magnet]]
+kind = "circle"
+size = 1.0
+center = [2.0, 0.0]
+magnetisation = [-1.0, 90.0]
+alpha = 0.0
+
+[[magnet]]
+kind = "circle"
+size = 1.0
+center = [0.0, -2.0]
+magnetisation = [1.0, 90.0]
+alpha = 0.0
+
+[[magnet]]
+kind = "circle"
+size = 1.0
+center = [-2.0, 0.0]
+magnetisation = [-1.0, 90.0]
+alpha = 0.0
+
+[grid]
+kind = "grid"
+start = [-4.0, -4.0]
+stop = [4.0, 4.0]
+numPoints = 100
+# Units are not yet implemented
+units = 1e-3 # mm

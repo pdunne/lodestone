@@ -1,6 +1,6 @@
 use crate::config::MagnetKind;
 
-use super::{magnet3d::Magnet3D, Magnet2D};
+use super::Magnet2D;
 
 /// Convenience type alias for a Vec of MagnetType enum. It is more general than
 /// `MagnetVec2D` and `MagnetVec3D`, but involves more boilerplate code.
@@ -8,9 +8,6 @@ pub type MagnetVec = Vec<Magnet>;
 
 /// Convenience type alias for a Vec of MagnetType2D enum
 pub type MagnetVec2D = Vec<Magnet2D>;
-
-/// Convenience type alias for a Vec of MagnetType2D enum
-pub type MagnetVec3D = Vec<Magnet2D>;
 
 /// Convenience type alias for a Vec of MagnetKind enum used for serializing/deserializing.
 pub type MagnetList = Vec<MagnetKind>;
@@ -20,8 +17,8 @@ pub type MagnetList = Vec<MagnetKind>;
 pub enum Magnet {
     /// 2D Magnet
     Magnet2D(Magnet2D),
-    /// 3D Magnet
-    Magnet3D(Magnet3D),
+    // /// 3D Magnet
+    // Magnet3D(Magnet3D),
 }
 
 /// Return center trait. It must implement the `center()` method

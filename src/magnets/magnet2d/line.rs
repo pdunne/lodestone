@@ -135,7 +135,6 @@ fn get_field_line(magnet: &Line, point: &Point2) -> Result<Point2, MagnetError> 
     if (magnet.beta.to_radians() % PI).abs() > FP_CUTOFF && magnet.kr.abs() > FP_CUTOFF {
         let reverse_angle = M2_PI - magnet.beta.to_radians();
         local_point = local_point.rotate(&reverse_angle);
-        // println!("Rotated: {}", local_point);
         rotation_flag = true;
     }
 

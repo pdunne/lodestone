@@ -12,7 +12,7 @@ use crate::points::rotation_2d::rotate_tuple2;
 use crate::points::{internal_norm, Point2, Points};
 use rayon::prelude::*;
 
-// use indicatif::{ParallelProgressIterator, ProgressBar};
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde_derive::{Deserialize, Serialize};
 
@@ -492,12 +492,17 @@ impl PointVec2 {
 
     /// Returns the magnetic field for a series of points due to all magnets
     pub fn get_field(&self, magnet_list: &[Magnet2D]) -> PointVec2 {
-        // let pb = ProgressBar::new(self.x.len() as u64);
+        let pb = ProgressBar::new(self.x.len() as u64);
+
+        pb.set_style(ProgressStyle::default_bar().template(
+            "{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] ({percent}%, ETA {eta})",
+        ));
+
         let (x_local, y_local) = self
             .x
             .par_iter()
             .zip(self.y.par_iter())
-            // .progress_with(pb)
+            .progress_with(pb)
             .map(|(x, y)| get_field_2d(magnet_list, (x, y)).unwrap())
             .collect::<(Vec<f64>, Vec<f64>)>();
 

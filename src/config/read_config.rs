@@ -7,7 +7,7 @@ Copyright 2021 Peter Dunne */
 
 use crate::{
     magnets::{Circle, Magnet2D, MagnetVec2D, PolyDimension, Polygon, Rectangle, Vertices},
-    points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2, PointVecs2},
+    points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2},
     utils::conversions::Angle,
     MagnetError,
 };
@@ -34,6 +34,7 @@ pub enum MagnetKind {
     Rectangle(ReadRectangle),
 
     Polygon(ReadPolygon),
+    CustomPolygon(ReadCustomPolygon),
 }
 
 /// Stores input properties of a rectangular 2D magnet
@@ -137,8 +138,8 @@ fn default_circle() -> ReadCircle {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default = "default_polygon")]
 pub struct ReadPolygon {
-    regular: usize,
-    size: f64, //FIXME:Change field name?
+    num_sides: usize,
+    size: f64,
     size_type: String,
     center: [f64; 2],
     magnetisation: [f64; 2],
@@ -150,7 +151,7 @@ pub struct ReadPolygon {
 impl ReadPolygon {
     /// Constructor function to generate a ReadPolygon
     pub fn new(
-        regular: usize,
+        num_sides: usize,
         size: f64,
         size_type: String,
         center: [f64; 2],
@@ -160,7 +161,7 @@ impl ReadPolygon {
         alpha_angle: String,
     ) -> Self {
         ReadPolygon {
-            regular,
+            num_sides,
             size,
             size_type,
             center,
@@ -178,7 +179,7 @@ impl ReadPolygon {
 
 fn default_polygon() -> ReadPolygon {
     ReadPolygon {
-        regular: 4,
+        num_sides: 4,
         size: 1.0,
         size_type: "side".to_lowercase().to_string(),
         center: [0.0, 0.0],
@@ -186,6 +187,56 @@ fn default_polygon() -> ReadPolygon {
         mag_angle: "degrees".to_string(),
         alpha: 0.0,
         alpha_angle: "degrees".to_string(),
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default = "default_custom_polygon")]
+pub struct ReadCustomPolygon {
+    center: [f64; 2],
+    magnetisation: [f64; 2],
+    mag_angle: String,
+    alpha: f64,
+    alpha_angle: String,
+    vertices: PointVec2,
+}
+
+impl ReadCustomPolygon {
+    /// Constructor function to generate a ReadCustomPolygon
+    pub fn new(
+        center: [f64; 2],
+        magnetisation: [f64; 2],
+        mag_angle: String,
+        alpha: f64,
+        alpha_angle: String,
+        vertices: PointVec2,
+    ) -> Self {
+        ReadCustomPolygon {
+            center,
+            magnetisation,
+            mag_angle,
+            alpha,
+            alpha_angle,
+            vertices,
+        }
+    }
+    /// Default ReadReactangle
+    pub fn default() -> Self {
+        default_custom_polygon()
+    }
+}
+
+fn default_custom_polygon() -> ReadCustomPolygon {
+    ReadCustomPolygon {
+        center: [0.0, 0.0],
+        magnetisation: [1.0, 90.0],
+        mag_angle: "degrees".to_string(),
+        alpha: 0.0,
+        alpha_angle: "degrees".to_string(),
+        vertices: PointVec2 {
+            x: vec![0.5, 0.5, -0.5, -0.5],
+            y: vec![0.5, -0.5, -0.5, 0.5],
+        },
     }
 }
 
@@ -205,6 +256,21 @@ pub enum GridKind2D {
     None,
 }
 
+/// Stores input properties of a single point (0D)
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default = "default_point2d")]
+pub struct ReadGrid0D {
+    point: [f64; 2],
+    units: String,
+}
+
+fn default_point2d() -> ReadGrid0D {
+    ReadGrid0D {
+        point: [1.0, 1.0],
+        units: "m".to_string(),
+    }
+}
+
 /// Stores input properties of 2D grid of points (2D)
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default = "default_grid2d")]
@@ -212,6 +278,7 @@ pub struct ReadGrid2D {
     start: [f64; 2],
     stop: [f64; 2],
     num_points: usize,
+    units: String,
 }
 
 fn default_grid2d() -> ReadGrid2D {
@@ -219,6 +286,7 @@ fn default_grid2d() -> ReadGrid2D {
         start: [-2.0, -2.0],
         stop: [2.0, 2.0],
         num_points: 100,
+        units: "m".to_string(),
     }
 }
 
@@ -229,6 +297,7 @@ pub struct ReadGrid1D {
     start: [f64; 2],
     stop: [f64; 2],
     num_points: usize,
+    units: String,
 }
 
 fn default_line2d() -> ReadGrid1D {
@@ -236,18 +305,8 @@ fn default_line2d() -> ReadGrid1D {
         start: [-2.0, -2.0],
         stop: [2.0, 2.0],
         num_points: 100,
+        units: "m".to_string(),
     }
-}
-
-/// Stores input properties of a single point (2D)
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", default = "default_point2d")]
-pub struct ReadGrid0D {
-    point: [f64; 2],
-}
-
-fn default_point2d() -> ReadGrid0D {
-    ReadGrid0D { point: [1.0, 1.0] }
 }
 
 /// Stores input properties of a custom grid of points (2D)
@@ -335,6 +394,7 @@ pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetE
                     _ => Angle::Degrees(val.magnetisation[1]),
                 },
             )),
+
             MagnetKind::Polygon(val) => Magnet2D::Polygon(Polygon::new(
                 (val.center[0], val.center[1]),
                 match val.alpha_angle.to_lowercase().as_str() {
@@ -348,17 +408,30 @@ pub fn generate_magnets(magnets: Vec<MagnetKind>) -> Result<MagnetVec2D, MagnetE
                     "radians" => Angle::Radians(val.magnetisation[1]),
                     _ => Angle::Degrees(val.magnetisation[1]),
                 },
-                if val.regular > 0 {
+                {
                     let polydim = match val.size_type.to_lowercase().as_str() {
                         "apothem" => PolyDimension::Apothem(val.size),
                         "side" => PolyDimension::Side(val.size),
                         "radius" => PolyDimension::Radius(val.size),
                         _ => PolyDimension::Radius(val.size),
                     };
-                    Vertices::Regular(val.regular, polydim)
-                } else {
-                    Vertices::Custom(PointVec2::zero(&8)) //FIXME:this
+                    Vertices::Regular(val.num_sides, polydim)
                 },
+            )),
+            MagnetKind::CustomPolygon(val) => Magnet2D::Polygon(Polygon::new(
+                (val.center[0], val.center[1]),
+                match val.alpha_angle.to_lowercase().as_str() {
+                    "degrees" => Angle::Degrees(val.alpha),
+                    "radians" => Angle::Radians(val.alpha),
+                    _ => Angle::Degrees(val.alpha),
+                },
+                val.magnetisation[0],
+                match val.mag_angle.to_lowercase().as_str() {
+                    "degrees" => Angle::Degrees(val.magnetisation[1]),
+                    "radians" => Angle::Radians(val.magnetisation[1]),
+                    _ => Angle::Degrees(val.magnetisation[1]),
+                },
+                Vertices::Custom(val.vertices),
             )),
         });
     }

@@ -1,13 +1,13 @@
-use super::{MagnetKind, ReadCircle, ReadPolygon, ReadRectangle};
+use super::{MagnetKind, ReadCircle, ReadCustomPolygon, ReadRectangle};
 use crate::{
     magnets::{Magnet2D, MagnetTrait},
     points::PointVec2,
     MagnetError,
 };
-// use indicatif::ProgressBar;
 use serde_derive::{Deserialize, Serialize};
 
 use std::fs::File;
+// use std::sync::Mutex;
 
 /// Struct containing the results of the calculation,
 #[derive(Debug, Deserialize, Serialize)]
@@ -17,16 +17,24 @@ pub struct SimResult {
     pub magnets: Vec<MagnetKind>,
     /// Array of points
     pub points: PointVec2,
+    /// Unit of length for points
+    pub units: String,
     /// Array of calculated magnetic field
     pub field: PointVec2,
 }
 
 impl SimResult {
     /// Generates new SimResult Struct
-    pub fn new(magnets: Vec<MagnetKind>, points: PointVec2, field: PointVec2) -> Self {
+    pub fn new(
+        magnets: Vec<MagnetKind>,
+        points: PointVec2,
+        units: String,
+        field: PointVec2,
+    ) -> Self {
         SimResult {
             magnets,
             points,
+            units,
             field,
         }
     }
@@ -51,16 +59,14 @@ pub fn magnet2d_to_toml(magnet: &Magnet2D) -> Result<MagnetKind, MagnetError> {
             mag.alpha.to_degrees(),
             "degrees".to_string(),
         )),
-        //TODO: Finish this arm
-        Magnet2D::Polygon(mag) => MagnetKind::Polygon(ReadPolygon::new(
-            mag.num_vertices,
-            1.0,
-            "Side".to_string(),
+
+        Magnet2D::Polygon(mag) => MagnetKind::CustomPolygon(ReadCustomPolygon::new(
             mag.center.as_array(),
             [mag.jr, mag.phi.to_degrees()],
             "Degrees".to_string(),
             mag.alpha.to_degrees(),
             "Degrees".to_string(),
+            mag.vertices.clone(), //TODO: Fix clone ownership
         )),
     })
 }
@@ -77,20 +83,11 @@ pub fn gen_magnet_toml_2d(magnets: &[Magnet2D]) -> Result<Vec<MagnetKind>, Magne
 
 /// Writes `SimResult` struct to file
 pub fn save_results(sim_result: &SimResult, outfile: &str) -> Result<(), MagnetError> {
-    // serde_json::to_string(sim_result)?;
     let file = File::create(outfile)?;
-    // let pb = ProgressBar::new(self.x.len() as u64);
+
     serde_json::to_writer(file, sim_result)?;
     Ok(())
 }
-
-// Horrible kludge, don't use.
-// pub fn points_to_toml(points: &PointVec2) -> Result<GridKind2D> {
-//     Ok(GridKind2D::Custom(ReadGridCustom {
-//         x: points.x.clone(),
-//         y: points.y.clone(),
-//     }))
-// }
 
 #[cfg(test)]
 mod tests {

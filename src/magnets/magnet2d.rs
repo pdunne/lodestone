@@ -29,11 +29,10 @@ use crate::config::MagnetKind;
 use crate::magnets::MagnetTrait;
 use crate::MagnetError;
 
-/// Magnet2D Traits
-pub trait MagnetTrait2D<POINT, CENTER, SIZE, MAG>: MagnetTrait<POINT, CENTER, SIZE, MAG> {}
-
 use serde_derive::{Deserialize, Serialize};
 
+/// Magnet2D Traits
+pub trait MagnetTrait2D<POINT, CENTER, SIZE, MAG>: MagnetTrait<POINT, CENTER, SIZE, MAG> {}
 /// Enum to store the different 2D magnet types.
 ///
 /// This allows us to create a Vec<MagnetType2D>, and access the fields of the magnet
@@ -45,7 +44,7 @@ pub enum Magnet2D {
     Rectangle(Rectangle),
     /// 2D circular magnet
     Circle(Circle),
-    ///
+    /// 2D Arbitrary Polygon
     Polygon(Polygon),
 }
 
