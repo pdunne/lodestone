@@ -7,7 +7,7 @@ Copyright 2021 Peter Dunne */
 //!
 //! This submodule exposes
 
-#[allow(clippy::many_single_char_names)]
+#![allow(clippy::many_single_char_names)]
 use crate::magnets::magnet2d::Rectangle;
 use crate::points::{Point2, Points2};
 use crate::{MagnetError, FP_CUTOFF, I_2PI, I_4PI, M2_PI};

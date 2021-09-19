@@ -92,8 +92,8 @@ pub fn save_results(sim_result: &SimResult, outfile: &str) -> Result<(), MagnetE
 #[cfg(test)]
 mod tests {
     use crate::{
-        config::{Configure, GridKind2D},
         magnets::Rectangle,
+        parse::{Configure, GridKind2D},
     };
 
     use super::*;

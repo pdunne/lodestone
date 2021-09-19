@@ -26,8 +26,8 @@ use std::fmt;
 /// (0.0, 0.0), magnetised in y with a remnant magnetisation of 1.0 T
 /// # Example
 /// ```rust
-/// use magnet_rs::magnets::Circle;
-/// use magnet_rs::utils::conversions::Angle;
+/// use lodestone_core::magnets::Circle;
+/// use lodestone_core::utils::conversions::Angle;
 /// let magnet_1 = Circle::default();
 /// println!("Magnet 1:{}", magnet_1);
 /// let magnet_2 = Circle::new(1.0, (0.0, -1.0 / 2.0), Angle::Degrees(0.0), 1.0, Angle::Degrees(90.0));

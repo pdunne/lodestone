@@ -161,7 +161,7 @@ impl Points3 for Point3 {
         Point3 {
             x: self.x,
             y: self.y,
-            z: z,
+            z,
         }
     }
 

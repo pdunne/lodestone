@@ -29,8 +29,8 @@ use crate::MagnetError;
 /// (0.0, 0.0), magnetised in y with a remnant magnetisation of 1.0 T
 /// # Example
 /// ```rust
-/// use magnet_rs::magnets::Rectangle;
-/// use magnet_rs::utils::conversions::Angle;
+/// use lodestone_core::magnets::Rectangle;
+/// use lodestone_core::utils::conversions::Angle;
 /// let magnet_1 = Rectangle::default();
 /// println!("Magnet 1:{}", magnet_1);
 /// let magnet_2 = Rectangle::new(1.0, 1.0, (0.0, -1.0 / 2.0), Angle::Degrees(0.0), 1.0, Angle::Degrees(90.0));

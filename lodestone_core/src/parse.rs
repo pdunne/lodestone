@@ -6,13 +6,9 @@ Copyright 2021 Peter Dunne */
 //! Routines for reading simulation input files, writing result files, and
 //! command line argument configuration
 //!
-mod args;
-mod demo;
+// mod demo;
 mod read_config;
 mod write_config;
 
-pub use demo::*;
-
-pub use args::*;
 pub use read_config::*;
 pub use write_config::*;

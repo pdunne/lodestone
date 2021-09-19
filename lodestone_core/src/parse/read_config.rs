@@ -5,6 +5,7 @@ Copyright 2021 Peter Dunne */
 //! # Read
 //!
 
+#![allow(clippy::too_many_arguments)]
 use crate::{
     magnets::{Circle, Magnet2D, MagnetVec2D, PolyDimension, Polygon, Rectangle, Vertices},
     points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2},
@@ -181,12 +182,12 @@ fn default_polygon() -> ReadPolygon {
     ReadPolygon {
         num_sides: 4,
         size: 1.0,
-        size_type: "side".to_lowercase().to_string(),
+        size_type: "side".to_lowercase(),
         center: [0.0, 0.0],
         magnetisation: [1.0, 90.0],
-        mag_angle: "degrees".to_string(),
+        mag_angle: "degrees".to_lowercase(),
         alpha: 0.0,
-        alpha_angle: "degrees".to_string(),
+        alpha_angle: "degrees".to_lowercase(),
     }
 }
 
@@ -506,7 +507,7 @@ numPoints = 2"#;
     fn test_toml_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 4
+numSides = 4
 size = 2.0
 sizeType = "side"
 center = [-0.5, -0.5]
@@ -546,7 +547,7 @@ numPoints = 2"#;
     fn test_square_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 4
+numSides = 4
 size = 2.0
 sizeType = "side"
 center = [-0.5, -0.5]
@@ -583,7 +584,7 @@ numPoints = 2"#;
     fn test_hex_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 6
+numSides = 6
 size = 3.0
 sizeType = "apothem"
 center = [1.2, 0.3]
@@ -611,7 +612,7 @@ numPoints = 2"#;
         );
 
         magnet_list_vec.push(Magnet2D::Polygon(m1));
-        assert!(true);
+        // assert!(true);
 
         assert_eq!(magnet_list[0], magnet_list_vec[0]);
     }

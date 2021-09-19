@@ -24,9 +24,8 @@ pub use line_field::*;
 pub use polygon::*;
 pub use rectangle::*;
 
-use crate::config::magnet2d_to_toml;
-use crate::config::MagnetKind;
 use crate::magnets::MagnetTrait;
+use crate::parse::{magnet2d_to_toml, MagnetKind};
 use crate::MagnetError;
 
 use serde_derive::{Deserialize, Serialize};
