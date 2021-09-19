@@ -506,7 +506,7 @@ numPoints = 2"#;
     fn test_toml_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 4
+numSides = 4
 size = 2.0
 sizeType = "side"
 center = [-0.5, -0.5]
@@ -546,7 +546,7 @@ numPoints = 2"#;
     fn test_square_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 4
+numSides = 4
 size = 2.0
 sizeType = "side"
 center = [-0.5, -0.5]
@@ -583,7 +583,7 @@ numPoints = 2"#;
     fn test_hex_polygon() {
         let config_text = r#"[[magnet]]
 kind = "polygon"
-regular = 6
+numSides = 6
 size = 3.0
 sizeType = "apothem"
 center = [1.2, 0.3]
@@ -611,7 +611,7 @@ numPoints = 2"#;
         );
 
         magnet_list_vec.push(Magnet2D::Polygon(m1));
-        assert!(true);
+        // assert!(true);
 
         assert_eq!(magnet_list[0], magnet_list_vec[0]);
     }

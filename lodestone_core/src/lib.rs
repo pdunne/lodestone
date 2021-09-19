@@ -1,6 +1,6 @@
-//! # Magnet-RS
+//! lodestone_core
 //!
-//! Magnet-RS is a library to calculate the magnetic fields of arbitrary polygons
+//! Lodestone_core is a library to calculate the magnetic fields of arbitrary polygons
 //! and polyheda in 2D and 3D.
 //!
 //! //! This test library and binary implements routines for calculating magnetic
@@ -23,15 +23,15 @@
 
 use core::f64;
 
-pub mod config;
 pub mod magnets;
+pub mod parse;
 pub mod points;
 pub mod utils;
 
 mod error;
 pub use error::MagnetError;
 
-/// Non a number - float64 variant
+/// Not a number - float64 variant
 pub const NAN: f64 = f64::NAN;
 
 /// PI

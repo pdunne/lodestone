@@ -7,8 +7,11 @@ Copyright 2021 Peter Dunne */
 
 #![warn(missing_docs)]
 
+mod args;
+mod demo;
 use anyhow::Result;
-use magnet_rs::config::{run_demo, Args, SimResult};
+use args::Args;
+use lodestone_core::parse::SimResult;
 
 fn main() -> Result<()> {
     let args = Args::parse();
@@ -20,9 +23,9 @@ fn main() -> Result<()> {
     } = args;
 
     if demo {
-        run_demo()?
+        demo::run_demo()?
     } else {
-        let (magnet_list, points) = magnet_rs::config::parse_config_file(&infile)?;
+        let (magnet_list, points) = lodestone_core::parse::parse_config_file(&infile)?;
         if !silent {
             println!("Number of magnets: {}", magnet_list.len());
             println!("Number of points: {}", points.x.len());
@@ -32,12 +35,12 @@ fn main() -> Result<()> {
         let field = points.get_field(&magnet_list);
         let units = "mm".to_string();
 
-        let mag_toml = magnet_rs::config::gen_magnet_toml_2d(&magnet_list)?;
+        let mag_toml = lodestone_core::parse::gen_magnet_toml_2d(&magnet_list)?;
 
         if outfile.is_some() {
             let sim_res = SimResult::new(mag_toml, points, units, field);
             println!("Saving to {:#?}", outfile.as_ref().unwrap());
-            magnet_rs::config::save_results(&sim_res, &outfile.unwrap())?;
+            lodestone_core::parse::save_results(&sim_res, &outfile.unwrap())?;
             println!("Done")
         }
     }

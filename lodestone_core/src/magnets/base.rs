@@ -1,4 +1,4 @@
-use crate::config::MagnetKind;
+use crate::parse::MagnetKind;
 
 use super::Magnet2D;
 

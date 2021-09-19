@@ -1,6 +1,6 @@
-use crate::{
-    config::{gen_magnet_toml_2d, save_results, SimResult},
+use lodestone_core::{
     magnets::{Magnet2D, Rectangle},
+    parse::{gen_magnet_toml_2d, save_results, SimResult},
     points::{cart_prod_2d_vec, Point2},
     utils::conversions::Angle,
     MagnetError,
