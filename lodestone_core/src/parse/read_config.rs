@@ -5,6 +5,7 @@ Copyright 2021 Peter Dunne */
 //! # Read
 //!
 
+#![allow(clippy::too_many_arguments)]
 use crate::{
     magnets::{Circle, Magnet2D, MagnetVec2D, PolyDimension, Polygon, Rectangle, Vertices},
     points::{cart_prod_2d_vec, gen_line_2d, Point2, PointVec2},
@@ -181,12 +182,12 @@ fn default_polygon() -> ReadPolygon {
     ReadPolygon {
         num_sides: 4,
         size: 1.0,
-        size_type: "side".to_lowercase().to_string(),
+        size_type: "side".to_lowercase(),
         center: [0.0, 0.0],
         magnetisation: [1.0, 90.0],
-        mag_angle: "degrees".to_string(),
+        mag_angle: "degrees".to_lowercase(),
         alpha: 0.0,
-        alpha_angle: "degrees".to_string(),
+        alpha_angle: "degrees".to_lowercase(),
     }
 }
 

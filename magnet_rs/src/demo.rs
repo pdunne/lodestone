@@ -42,7 +42,7 @@ pub fn run_demo() -> Result<(), MagnetError> {
 
     let sim_res = SimResult::new(mag_toml, points, units, field);
     println!("Saving to {:#?}", outfile);
-    save_results(&sim_res, &outfile)?;
+    save_results(&sim_res, outfile)?;
     println!("Done");
 
     Ok(())

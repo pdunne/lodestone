@@ -19,7 +19,8 @@
 //!
 //! ## Iterative Method for Cylindrical Sources
 // #![warn(missing_docs)]
-#![allow(dead_code)]
+// #![warn(missing_doc_code_examples)]
+// #![allow(dead_code)]
 
 use core::f64;
 
