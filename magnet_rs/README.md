@@ -1,24 +1,79 @@
-# Lodestone_Core
+# Magnet_RS
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 [![Continuous integration](https://github.com/pdunne/lodestone/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/pdunne/lodestone/actions/workflows/rust.yml)
 
-Loadstone_Core is a Rust library for calculating the magnetic fields of
-any object or objects in 2D and 3D; along with any induced forces and torques.
+Magnet_RS is a command line program to calculate the magnetic fields of any
+object or objects in 2D and 3D; along with any induced forces and torques. This
+uses the `lodestone_core` crate, which is a rewrite of a python package,
+`pymagnet`:
 
-This is a rewrite of a Python package `pymagnet`:
 [Github](https://github.com/pdunne/pymagnet), or
 [PyPi](https://pypi.org/project/pymagnet/).
 
+## Description
 
-## Features
+This binary reads a toml file containing the magnets and list of points to run
+the calculation over. This is then saved to a JSON file with the following keys:
 
-This code uses analytical expressions to calculate the magnetic field due to
-arbitrary magnets.
+* `magnets`: an array of the magnets and their properties
+* `points`: points where the field is calculated
+* `field`: calculated magnetic field
 
-Currently, only 2D features are available
+Currently, only 2D features are available.
 
+## Example
+
+Run the demo calculation:
+
+```bash
+magnet_rs -d
+```
+
+which saves the computed field to `example_out.json`
+
+The Python script in the data folder, `plot_example.py` will plot the resulting
+json file.
+
+### Reading input files
+
+Save the following into `input.toml`
+
+```toml
+[[magnet]]
+kind = "rectangle"
+size = [1.0, 1.0]
+center = [-1.0, -0.5]
+magnetisation = [1.0, 90.0]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+[[magnet]]
+kind = "rectangle"
+size = [1.0, 1.0]
+center = [1.0, -2.0]
+magnetisation = [-1.0, 0.5]
+magAngle = "degrees"
+alpha = 0.0
+alphaAngle = "degrees"
+
+
+# Then define the type of grid for calculating over
+[grid]
+kind = "grid"
+start = [-2.0, -2.0]
+stop = [2.0, 2.0]
+numPoints = 101
+units = "mm" # NOTE: Units are not yet implemented 
+```
+
+then run the following to save the data in a JSON file:
+
+```bash
+magnet_rs -i input.toml -o out.json
+```
 
 ## Licensing
 

@@ -1,75 +1,14 @@
-# magnet_rs
+# Lodestone_Python
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
-This test library and binary implements routines for calculating magnetic
-fields, written in Rust. A more complete Python version can be found on
+Lodestone_Python will be a wrapper to expose  the `lodestone_core` Rust library
+as a native module in Python.
+
+For the moment, the functionality is provided by the `pymagnet` module:
 [Github](https://github.com/pdunne/pymagnet), or
 [PyPi](https://pypi.org/project/pymagnet/).
-
-Download from [crates.io](https://crates.io/crates/magnet-rs).
-
-## Features
-
-This code uses analytical expressions to calculate the magnetic field due to
-simple magnets. These include:
-
-* 2D: rectangles, squares, arbitrary polygons
-
-This binary reads a toml file containing the magnets and list of points to run the calculation over.
-This is then saved to a JSON file with the following keys:
-
-* `magnets`: an array of the magnets and their properties
-* `points`: points where the field is calculated
-* `field`: calculated magnetic field
-
-## Example
-
-Run the demo calculation:
-
-```bash
-magnet_rs -d
-```
-
-### Reading input files
-
-Save the following into `input.toml`
-
-```toml
-[[magnet]]
-kind = "rectangle"
-size = [1.0, 1.0]
-center = [-1.0, -0.5]
-magnetisation = [1.0, 90.0]
-magAngle = "degrees"
-alpha = 0.0
-alphaAngle = "degrees"
-
-[[magnet]]
-kind = "rectangle"
-size = [1.0, 1.0]
-center = [1.0, -2.0]
-magnetisation = [-1.0, 0.5]
-magAngle = "degrees"
-alpha = 0.0
-alphaAngle = "degrees"
-
-
-# Then define the type of grid for calculating over
-[grid]
-kind = "grid"
-start = [-2.0, -2.0]
-stop = [2.0, 2.0]
-numPoints = 101
-units = "mm" # NOTE: Units are not yet implemented 
-```
-
-then run the following to save the data in a JSON file:
-
-```bash
-magnet_rs -i input.toml -o out.json
-```
 
 ## Licensing
 
