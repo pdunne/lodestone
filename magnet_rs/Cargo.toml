@@ -13,7 +13,7 @@ license = "MPL-2.0"
 
 
 [dependencies]
-lodestone_core = {path = "../lodestone_core"}
+lodestone_core = {path = "../lodestone_core", version="0.2"}
 anyhow="1.0"
 
 # serde = "1.0"

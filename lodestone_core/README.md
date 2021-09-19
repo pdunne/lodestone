@@ -2,7 +2,9 @@
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](https://opensource.org/licenses/MPL-2.0)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
-[![Continuous integration](https://github.com/pdunne/lodestone/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/pdunne/lodestone/actions/workflows/rust.yml)
+[![build status](https://github.com/pdunne/lodestone/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/pdunne/lodestone/actions/workflows/rust.yml)
+[![crate](https://img.shields.io/crates/v/lodestone_core.svg)](https://crates.io/crates/lodestone_core)
+[![documentation](https://docs.rs/lodestone_core/badge.svg)](https://docs.rs/lodestone_core)
 
 Loadstone_Core is a Rust library for calculating the magnetic fields of
 any object or objects in 2D and 3D; along with any induced forces and torques.
