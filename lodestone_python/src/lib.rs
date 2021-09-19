@@ -8,6 +8,7 @@ Copyright 2021 Peter Dunne */
 mod tests {
     #[test]
     fn it_works() {
-        assert_eq!(2 + 2, 4);
+        let test_val = 5 - 1;
+        assert_eq!(test_val, 4);
     }
 }
