@@ -183,7 +183,7 @@ mod tests {
         );
         let point = Point2::new(0.0, 0.0);
         let field = field_in_x_for_y_mag(point.x, point.y, magnet.a, magnet.b, magnet.jy).unwrap();
-        assert_eq!(field, 0.0);
+        assert!(nearly_equal(field, 0.0));
     }
 
     #[test]
@@ -198,7 +198,7 @@ mod tests {
         );
         let point = Point2::new(0.0, 0.0);
         let field = field_in_y_for_y_mag(point.x, point.y, magnet.a, magnet.b, magnet.jy).unwrap();
-        assert_eq!(field, 0.5);
+        assert!(nearly_equal(field, 0.5));
     }
 
     #[test]
@@ -215,8 +215,8 @@ mod tests {
         let field = get_field_rectangle(&magnet, &point).unwrap();
         // let result = nearly_equal(field.x, 0.0) && nearly_equal(field.y, 0.5);
         // assert!(result);
-        assert_eq!(field.x, 0.0_f64);
-        assert_eq!(field.y, 0.5_f64);
+        assert!(nearly_equal(field.x, 0.0_f64));
+        assert!(nearly_equal(field.y, 0.5_f64));
     }
 
     #[test]
@@ -283,8 +283,8 @@ mod tests {
         );
         let point = Point2::new(0.0, 0.0);
         let field = get_field_rectangle(&magnet, &point).unwrap();
-        let comp_field = Point2::new(0.0, -2.0_f64.atan2(1.0) / PI);
+        let comp_field = Point2::new(0.0, -(2.0_f64.atan2(1.0)) / PI);
         assert!(nearly_equal(field.x, comp_field.x));
-        assert_eq!(field.y, comp_field.y);
+        assert!(nearly_equal(field.y, comp_field.y));
     }
 }

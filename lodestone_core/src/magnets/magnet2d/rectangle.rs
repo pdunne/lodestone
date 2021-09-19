@@ -226,8 +226,8 @@ mod tests {
 
         let point = (0.0, 0.0);
         let field = magnet.field(&point).unwrap();
-        assert_eq!(field.0, 0.0_f64);
-        assert_eq!(field.1, 0.5);
+        assert!(nearly_equal(field.0, 0.0_f64));
+        assert!(nearly_equal(field.1, 0.5));
     }
 
     #[test]
@@ -243,8 +243,8 @@ mod tests {
 
         let point = Point2::new(0.0, 0.0);
         let field = magnet.field(&point).unwrap();
-        assert_eq!(field.x, 0.0_f64);
-        assert_eq!(field.y, 0.5_f64);
+        assert!(nearly_equal(field.x, 0.0_f64));
+        assert!(nearly_equal(field.y, 0.5_f64));
     }
 
     #[test]

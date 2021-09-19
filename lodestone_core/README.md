@@ -11,6 +11,14 @@ This is a rewrite of a Python package `pymagnet`:
 [Github](https://github.com/pdunne/pymagnet), or
 [PyPi](https://pypi.org/project/pymagnet/).
 
+## Usage
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+lodestone_core = "0.2"
+```
 
 ## Features
 
@@ -18,7 +26,6 @@ This code uses analytical expressions to calculate the magnetic field due to
 arbitrary magnets.
 
 Currently, only 2D features are available
-
 
 ## Licensing
 

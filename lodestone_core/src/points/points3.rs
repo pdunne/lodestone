@@ -422,7 +422,7 @@ mod tests {
     #[test]
     fn unit_magnitude_squared() {
         let mag_squared = Point3::i_hat().magnitude_squared();
-        assert_eq!(1., mag_squared);
+        assert!(nearly_equal(1., mag_squared));
     }
 
     #[test]
@@ -433,7 +433,7 @@ mod tests {
             z: 5.0,
         };
         let result = p1.magnitude();
-        assert_eq!(50_f64.sqrt(), result);
+        assert!(nearly_equal(50_f64.sqrt(), result));
     }
 
     #[test]
@@ -444,7 +444,7 @@ mod tests {
             z: 5.0,
         };
         let result = p1.distance_from_origin();
-        assert_eq!(50_f64.sqrt(), result);
+        assert!(nearly_equal(50_f64.sqrt(), result));
     }
 
     #[test]
@@ -460,7 +460,7 @@ mod tests {
             z: 7.1,
         };
         let result = p1.distance_from_point(&p2);
-        assert_eq!(58.5_f64.sqrt(), result);
+        assert!(nearly_equal(58.5_f64.sqrt(), result));
     }
 
     #[test]
@@ -476,7 +476,7 @@ mod tests {
             z: 5.0,
         };
         let result = p1.dot(&p2);
-        assert_eq!(26.0, result);
+        assert!(nearly_equal(26.0, result));
     }
 
     #[test]

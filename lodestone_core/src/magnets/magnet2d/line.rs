@@ -189,12 +189,12 @@ mod tests {
     use crate::utils::comparison::nearly_equal;
     // use crate::M2_PI;
 
-    #[test]
-    fn test_default_line() {
-        let line = Line::default();
-        println!("{:?}", line);
-        assert!(true);
-    }
+    // #[test]
+    // fn test_default_line() {
+    //     let line = Line::default();
+    //     println!("{:?}", line);
+    //     assert!(true);
+    // }
 
     #[test]
     fn test_get_line_center_vertical() {
@@ -239,11 +239,9 @@ mod tests {
         let comp_line = Line::new(1.0, Point2::new(0.0, 1.0), Angle::Degrees(90.0), 1.0);
         comp_line_array.push(comp_line);
 
-        assert_eq!(area, comp_area, "Compare areas");
+        assert!(nearly_equal(area, comp_area), "Compare areas");
 
         let centroid_comp = nearly_equal(0.0, centroid.x) && nearly_equal(0.0, centroid.y);
         assert!(centroid_comp, "Centroid should be zero");
-        println!("{:?}", _line_array);
-        // assert_eq?!(comp_line_array, line_array);
     }
 }

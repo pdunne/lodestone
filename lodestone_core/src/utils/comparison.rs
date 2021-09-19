@@ -28,3 +28,29 @@ pub fn nearly_equal(a: f64, b: f64) -> bool {
         (diff / f64::min(abs_a + abs_b, f64::MAX)) < minimum_val
     }
 }
+
+pub fn nearly_equal_array(va: &[f64], vb: &[f64]) -> bool {
+    (va.len() == vb.len()) &&  // zip stops at the shortest
+     va.iter()
+       .zip(vb)
+       .all(|(a,b)| nearly_equal(*a,*b))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_nearly_equal() {
+        let a = 2.0;
+        let b = 10.0 / 5.0;
+        assert!(nearly_equal(a, b));
+    }
+
+    #[test]
+    fn test_nearly_equal_array() {
+        let a = vec![1.0, 2.3, 3.004, 4.5];
+        let b = vec![1.0, 2.3, 3.004, 4.5];
+        assert!(nearly_equal_array(&a, &b));
+    }
+}

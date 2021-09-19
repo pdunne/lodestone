@@ -471,7 +471,7 @@ kind = "line"
 start = [0.0, -1.01]
 stop = [0.0, 0.01]
 numPoints = 2"#;
-        let config: Configure = toml::from_str(&config_text).unwrap();
+        let config: Configure = toml::from_str(config_text).unwrap();
         let magnet_list = generate_magnets(config.magnet).unwrap();
         let points = generate_points(config.grid).unwrap();
 
@@ -521,7 +521,7 @@ kind = "line"
 start = [0.0, -1.01]
 stop = [0.0, 0.01]
 numPoints = 2"#;
-        let config: Configure = toml::from_str(&config_text).unwrap();
+        let config: Configure = toml::from_str(config_text).unwrap();
         let magnet_list = generate_magnets(config.magnet).unwrap();
         let points = generate_points(config.grid).unwrap();
 
@@ -561,7 +561,7 @@ kind = "line"
 start = [0.0, -1.01]
 stop = [0.0, 0.01]
 numPoints = 2"#;
-        let config: Configure = toml::from_str(&config_text).unwrap();
+        let config: Configure = toml::from_str(config_text).unwrap();
         let magnet_list = generate_magnets(config.magnet).unwrap();
 
         let mut magnet_list_vec = MagnetVec2D::new();
@@ -575,7 +575,6 @@ numPoints = 2"#;
         );
 
         magnet_list_vec.push(Magnet2D::Polygon(m1));
-        assert!(true);
 
         assert_eq!(magnet_list[0], magnet_list_vec[0]);
     }
@@ -598,7 +597,7 @@ kind = "line"
 start = [0.0, -1.01]
 stop = [0.0, 0.01]
 numPoints = 2"#;
-        let config: Configure = toml::from_str(&config_text).unwrap();
+        let config: Configure = toml::from_str(config_text).unwrap();
         let magnet_list = generate_magnets(config.magnet).unwrap();
 
         let mut magnet_list_vec = MagnetVec2D::new();

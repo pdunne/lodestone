@@ -42,7 +42,10 @@ pub fn get_field_2d(
 
 #[cfg(test)]
 mod tests {
-    use crate::{magnets::Rectangle, utils::conversions::Angle};
+    use crate::{
+        magnets::Rectangle,
+        utils::{comparison::nearly_equal, conversions::Angle},
+    };
 
     use super::*;
 
@@ -77,6 +80,6 @@ mod tests {
         // Get local field for all magnets in the registry
         let local_field = loop_field_2d(&magnet_list, &point).unwrap();
         println!("Total field is {} at point {}", local_field, point);
-        assert_eq!(local_field.x, 1.357145077959237);
+        assert!(nearly_equal(local_field.x, 1.357145077959237));
     }
 }

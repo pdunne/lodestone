@@ -227,7 +227,10 @@ impl GetField<&(f64, f64), Result<(f64, f64), MagnetError>> for Polygon {
 mod tests {
 
     use super::*;
-    use crate::PI_2;
+    use crate::{
+        utils::comparison::{nearly_equal, nearly_equal_array},
+        PI_2,
+    };
 
     #[test]
     fn test_regular_vertices_fail() {
@@ -240,20 +243,20 @@ mod tests {
         assert!(vertex.is_err());
     }
 
-    #[test]
-    fn test_polygon_default() {
-        let magnet = Polygon::default();
-        println!("{}", magnet);
-
-        assert!(true);
-    }
+    //     #[test]
+    //     fn test_polygon_default() {
+    //         let magnet = Polygon::default();
+    //         println!("{}", magnet);
+    //
+    //         assert!(true);
+    //     }
 
     #[test]
     fn test_radius_apothem_square() {
         let param = PolyDimension::Apothem(2.0);
         let num_vertices = 4;
         let radius = get_radius(&num_vertices, &param);
-        assert_eq!(radius, 2.0 / (PI / 4.0).cos());
+        assert!(nearly_equal(radius, 2.0 / (PI / 4.0).cos()));
     }
 
     #[test]
@@ -261,7 +264,7 @@ mod tests {
         let param = PolyDimension::Side(1.0);
         let num_vertices = 6;
         let radius = get_radius(&num_vertices, &param);
-        assert_eq!(radius, 1.0 / 2.0 / (PI / 6.0).sin());
+        assert!(nearly_equal(radius, 1.0 / 2.0 / (PI / 6.0).sin()));
     }
 
     #[test]
@@ -269,7 +272,7 @@ mod tests {
         let param = PolyDimension::Radius(2.0);
         let num_vertices = 7;
         let radius = get_radius(&num_vertices, &param);
-        assert_eq!(radius, 2.0);
+        assert!(nearly_equal(radius, 2.0));
     }
 
     #[test]
@@ -281,10 +284,12 @@ mod tests {
                 .unwrap();
         let num_vertices = vertices.x.len();
         let comp_vert = PointVec2 {
-            x: vec![1.0, 1.0000000000000002, -1.0, -1.0000000000000002],
-            y: vec![1.0000000000000002, -1.0, -1.0000000000000002, 1.0],
+            x: vec![1.0, 1.0, -1.0, -1.0],
+            y: vec![1.0, -1.0, -1.0, 1.0],
         };
-        assert_eq!(vertices, comp_vert);
+
+        assert!(nearly_equal_array(&vertices.x, &comp_vert.x));
+        assert!(nearly_equal_array(&vertices.y, &comp_vert.y));
         assert_eq!(num_vertices, 4)
     }
 
@@ -297,24 +302,18 @@ mod tests {
                 .unwrap();
         let num_vertices = vertices.x.len();
         let comp_vert = PointVec2 {
-            x: vec![
-                1.5,
-                3.0000000000000004,
-                1.5000000000000013,
-                -1.4999999999999996,
-                -3.0000000000000004,
-                -1.4999999999999991,
-            ],
+            x: vec![1.5, 3.0, 1.5, -1.5, -3.0, -1.5],
             y: vec![
                 2.5980762113533165,
-                0.00000000000000018369701987210302,
+                0.0,
                 -2.598076211353316,
                 -2.598076211353317,
-                -0.000000000000000551091059616309,
+                -0.0,
                 2.598076211353317,
             ],
         };
-        assert_eq!(vertices, comp_vert);
+        assert!(nearly_equal_array(&vertices.x, &comp_vert.x));
+        assert!(nearly_equal_array(&vertices.y, &comp_vert.y));
         assert_eq!(num_vertices, 6)
     }
 
@@ -333,7 +332,8 @@ mod tests {
             x: vec![1.0, 1.0, -1.0, -1.0],
             y: vec![1.0, -1.0, -1.0, 1.0],
         };
-        assert_eq!(vertices, comp_vert);
+        assert!(nearly_equal_array(&vertices.x, &comp_vert.x));
+        assert!(nearly_equal_array(&vertices.y, &comp_vert.y));
         assert_eq!(num_vertices, comp_vert.x.len())
     }
 
@@ -349,12 +349,12 @@ mod tests {
 
         println!("{}", magnet);
         let comp_vert = PointVec2 {
-            x: vec![1.0, 1.0000000000000002, -1.0, -1.0000000000000002],
-            y: vec![1.0000000000000002, -1.0, -1.0000000000000002, 1.0],
+            x: vec![1.0, 1.0, -1.0, -1.0],
+            y: vec![1.0, -1.0, -1.0, 1.0],
         };
-
-        assert_eq!(magnet.vertices, comp_vert);
-        assert_eq!(magnet.jr, 1.0);
+        assert!(nearly_equal_array(&magnet.vertices.x, &comp_vert.x));
+        assert!(nearly_equal_array(&magnet.vertices.y, &comp_vert.y));
+        assert!(nearly_equal(magnet.jr, 1.0));
     }
 
     #[test]
@@ -379,6 +379,6 @@ mod tests {
         };
 
         assert_eq!(magnet.vertices, comp_vert);
-        assert_eq!(magnet.jr, 1.0);
+        assert!(nearly_equal(magnet.jr, 1.0));
     }
 }

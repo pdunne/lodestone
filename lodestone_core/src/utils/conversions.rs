@@ -183,29 +183,29 @@ pub fn rotate_around_origin(&point: &Point2, phi: &f64) -> Point2 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{PI, PI_2, PI_4};
+    use crate::{utils::comparison::nearly_equal, PI, PI_2, PI_4};
 
     #[test]
     fn test_degrees_to_radians() {
         let angle = Angle::Degrees(90.0);
-        assert_eq!(angle.to_radians(), PI_2);
+        assert!(nearly_equal(angle.to_radians(), PI_2));
     }
 
     #[test]
     fn test_degrees_to_degrees() {
         let angle = Angle::Degrees(32.0);
-        assert_eq!(angle.to_degrees(), 32.0);
+        assert!(nearly_equal(angle.to_degrees(), 32.0));
     }
 
     #[test]
     fn test_radians_to_degrees() {
         let angle = Angle::Radians(PI);
-        assert_eq!(angle.to_degrees(), 180.0);
+        assert!(nearly_equal(angle.to_degrees(), 180.0));
     }
 
     #[test]
     fn test_radians_to_radians() {
         let angle = Angle::Radians(PI_4);
-        assert_eq!(angle.to_radians(), PI_4);
+        assert!(nearly_equal(angle.to_radians(), PI_4));
     }
 }

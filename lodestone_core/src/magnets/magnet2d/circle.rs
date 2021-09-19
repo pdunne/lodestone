@@ -174,16 +174,15 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_circle_field() {
-        let m1 = Circle::default();
-        println!("m: {}", m1);
-        let point1 = Point2::new(0.0, 0.5);
-
-        let field = m1.field(&point1).unwrap();
-        println!("f {}", field);
-        assert!(true);
-    }
+    //     #[test]
+    //     fn test_circle_field() {
+    //         let m1 = Circle::default();
+    //         println!("m: {}", m1);
+    //         let point1 = Point2::new(0.0, 0.5);
+    //
+    //         let field = m1.field(&point1).unwrap();
+    //         // assert!(true);
+    //     }
 
     #[test]
     fn test_circle_surface_field_y_rot_90() {
