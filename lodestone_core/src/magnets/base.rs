@@ -1,6 +1,7 @@
 use crate::parse::MagnetKind;
 
 use super::Magnet2D;
+use super::Magnet3D;
 
 /// Convenience type alias for a Vec of MagnetType enum. It is more general than
 /// `MagnetVec2D` and `MagnetVec3D`, but involves more boilerplate code.
@@ -17,8 +18,8 @@ pub type MagnetList = Vec<MagnetKind>;
 pub enum Magnet {
     /// 2D Magnet
     Magnet2D(Magnet2D),
-    // /// 3D Magnet
-    // Magnet3D(Magnet3D),
+    /// 3D Magnet
+    Magnet3D(Magnet3D),
 }
 
 /// Return center trait. It must implement the `center()` method
@@ -63,5 +64,5 @@ pub trait MagnetTrait<POINT, CENTER, SIZE, MAG> {
     /// i.e. magnitude and angle phi.
     ///
     /// This method also updates self.jx and self.jy
-    fn set_magnetisation(&mut self, magnetisation: MAG);
+    fn with_magnetisation(self, magnetisation: MAG) -> Self;
 }

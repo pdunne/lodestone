@@ -34,6 +34,11 @@ impl PolarPoint {
     pub fn as_tuple(&self) -> (f64, f64) {
         (self.rho, self.phi)
     }
+
+    /// Returns a point struct as an array
+    pub fn as_array(&self) -> [f64; 2] {
+        [self.rho, self.phi]
+    }
 }
 
 impl fmt::Display for PolarPoint {

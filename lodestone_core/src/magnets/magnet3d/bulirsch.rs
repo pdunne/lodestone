@@ -7,7 +7,7 @@ use core::f64;
 
 use crate::{FP_CUTOFF, NAN, PI_2};
 #[allow(clippy::many_single_char_names)]
-
+// #[allow(dead_code)]
 /// Bulirsch's  complete elliptic integral
 /// See NIST Handbook of Mathematical Functions, [http://dlmf.nist.gov/19.2](http://dlmf.nist.gov/19.2)
 /// ```math
@@ -32,8 +32,9 @@ use crate::{FP_CUTOFF, NAN, PI_2};
 /// $` C\left(1, 1, 1, 1 \right)  = \pi/2 `$
 ///
 /// ```rust
-/// use magnet_rs::magnets::bulirsch::cel;
-/// assert_eq!(cel(1.0, 1.0, 1.0, 1.0), std::f64::consts::FRAC_PI_2);
+/// use lodestone_core::magnets::cel;
+/// use lodestone_core::utils::comparison::nearly_equal;
+/// assert!(nearly_equal(cel(1.0, 1.0, 1.0, 1.0), std::f64::consts::FRAC_PI_2));
 /// ```
 pub fn cel(kc: f64, p: f64, c: f64, s: f64) -> f64 {
     if kc.abs() == 0.0 {

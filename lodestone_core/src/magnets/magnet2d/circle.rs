@@ -139,11 +139,12 @@ impl MagnetTrait<[f64; 2], Point2, f64, PolarPoint> for Circle {
     /// i.e. magnitude and angle phi.
     ///
     /// This method also updates self.jx and self.jy
-    fn set_magnetisation(&mut self, magnetisation: PolarPoint) {
+    fn with_magnetisation(mut self, magnetisation: PolarPoint) -> Self {
         self.jr = magnetisation.rho;
         self.phi = Angle::Radians(magnetisation.phi);
         self.jx = self.jr * (magnetisation.phi.cos());
         self.jy = self.jr * (magnetisation.phi.sin());
+        self
     }
 }
 

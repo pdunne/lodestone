@@ -15,6 +15,7 @@ mod points2;
 mod points3;
 mod polarpoints;
 mod rotation_2d;
+mod sphericalpoints;
 
 // make subroutines available from this module
 // pub use point_array2::*;
@@ -22,6 +23,7 @@ pub use point_vec2::*;
 pub use points2::*;
 pub use points3::*;
 pub use polarpoints::*;
+pub use sphericalpoints::*;
 
 /// General traits for all point types, including operation overloading
 pub trait Points {

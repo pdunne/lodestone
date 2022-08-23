@@ -8,7 +8,9 @@ Copyright 2021 Peter Dunne */
 //! systems and between degrees and radians
 //!
 
-use crate::points::{Point2, Points2, PolarPoint};
+use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
+
+use crate::points::{Point2, Point3, Points2, Points3, PolarPoint, SphericalPoint};
 use serde_derive::{Deserialize, Serialize};
 
 /// Angle enum for converting between radians and degrees
@@ -38,6 +40,89 @@ impl Angle {
             Angle::Radians(val) => val,
         }
     }
+
+    fn add_p(&self, other: &Self) -> Self {
+        Angle::Radians(self.to_radians() + other.to_radians())
+    }
+
+    fn sub_p(&self, other: &Self) -> Self {
+        Angle::Radians(self.to_radians() - other.to_radians())
+    }
+
+    fn mul_p(&self, other: &Self) -> Self {
+        Angle::Radians(self.to_radians() * other.to_radians())
+    }
+
+    fn div_p(&self, other: &Self) -> Self {
+        Angle::Radians(self.to_radians() / other.to_radians())
+    }
+
+    fn neg_p(&self) -> Self {
+        Angle::Radians(-self.to_radians())
+    }
+
+    pub fn scale(&self, s: f64) -> Self {
+        Angle::Radians(self.to_radians() * s)
+    }
+
+    pub fn round(&self) -> Self {
+        Angle::Radians(self.to_radians().round())
+    }
+}
+
+impl Add for Angle {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        self.add_p(&other)
+    }
+}
+
+impl AddAssign for Angle {
+    fn add_assign(&mut self, other: Self) {
+        *self = Angle::Radians(self.to_radians() + other.to_radians());
+    }
+}
+
+impl Sub for Angle {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        self.sub_p(&other)
+    }
+}
+
+impl Mul for Angle {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self::Output {
+        self.mul_p(&other)
+    }
+}
+
+impl Div for Angle {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self::Output {
+        self.div_p(&other)
+    }
+}
+
+impl Neg for Angle {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        self.neg_p()
+    }
+}
+
+impl Default for Angle {
+    /// Default method for Prism.
+    ///
+    /// Returns 0.0 radians
+    fn default() -> Self {
+        Angle::Radians(0.0)
+    }
 }
 
 /// Converts a cartesian coordinate to polar
@@ -54,7 +139,7 @@ pub fn pol2cart(point: &PolarPoint) -> Point2 {
     Point2 { x, y }
 }
 
-/// Converts polar vectors to cartesian vectors
+/// Converts a polar vector to a cartesian vector
 pub fn vector_pol2cart(vector: &PolarPoint, phi: &f64) -> Point2 {
     let cos_phi = phi.cos();
     let sin_phi = phi.sin();
@@ -69,7 +154,7 @@ pub fn vector_pol2cart(vector: &PolarPoint, phi: &f64) -> Point2 {
 }
 
 /// Rotates a 2D point, `Point2` about a pivot point
-pub fn rotate_around_pivot(&point: &Point2, phi: &f64, pivot: &Point2) -> Point2 {
+pub fn rotate_around_pivot_2d(&point: &Point2, phi: &f64, pivot: &Point2) -> Point2 {
     let cos_val = phi.cos();
     let sin_val = phi.sin();
     let x = point.x - pivot.x;
@@ -82,7 +167,7 @@ pub fn rotate_around_pivot(&point: &Point2, phi: &f64, pivot: &Point2) -> Point2
 }
 
 /// Rotates a 2D point, `Point2` about the origin
-pub fn rotate_around_origin(&point: &Point2, phi: &f64) -> Point2 {
+pub fn rotate_around_origin_2d(&point: &Point2, phi: &f64) -> Point2 {
     let cos_val = phi.cos();
     let sin_val = phi.sin();
     let x = point.x;
@@ -94,91 +179,44 @@ pub fn rotate_around_origin(&point: &Point2, phi: &f64) -> Point2 {
     Point2 { x: x_rot, y: y_rot }
 }
 
-// def cart2sph(x, y, z):
-//     """Converts from cartesian to spherical coordinates
-//
-//     Args:
-//         x (ndarray): x coordinates
-//         y (ndarray): y coordinates
-//         z (ndarray): z coordinates
-//
-//     Returns:
-//         tuple: r, theta, phi
-//     """
-//     r = _np.sqrt(x ** 2 + y ** 2 + z ** 2)
-//     phi = _np.arctan2(y, x)
-//
-//     # Hide the warning for situtations where there is a divide by zero.
-//     # This returns a NaN in the array, which is ignored for plotting.
-//     with _np.errstate(divide="ignore", invalid="ignore"):
-//         theta = _np.arccos(z / r)
-//     return (r, theta, phi)
-//
-//
-// def sph2cart(r, theta, phi):
-//     """Converts from spherical to cartesian coordinates
-//
-//     Args:
-//         r (ndarray): radial coordinates
-//         theta (ndarray): azimuthal angles
-//         phi (ndarray): polar angle
-//
-//     Returns:
-//         tuple: x,y,z
-//     """
-//     x = r * _np.sin(theta) * _np.cos(phi)
-//     y = r * _np.sin(theta) * _np.sin(phi)
-//     z = r * _np.cos(theta)
-//     return x, y, z
-//
-//
-// def vector_sph2cart(Br, Btheta, Bphi, theta, phi):
-//     """Converts Vectors from spherical to cartesian coordinates
-//
-//     Args:
-//         Br (ndarray): radial vector component
-//         Btheta (ndarray): polar vector component
-//         Bphi (ndarray): azimuthal vector component
-//         theta (ndarray): azimuthal angles
-//         phi (ndarray): polar angle
-//
-//     Returns:
-//         tuple: Bx,By,Bz
-//     """
-//     Bx = (
-//         Br * _np.sin(theta) * _np.cos(phi)
-//         + Btheta * _np.cos(theta) * _np.cos(phi)
-//         - Bphi * _np.sin(phi)
-//     )
-//
-//     By = (
-//         Br * _np.sin(theta) * _np.sin(phi)
-//         + Btheta * _np.cos(theta) * _np.sin(phi)
-//         + Bphi * _np.cos(phi)
-//     )
-//
-//     Bz = Br * _np.cos(theta) - Btheta * _np.sin(theta)
-//     return Bx, By, Bz
-//
-//
-// def sphere_sph2cart(Br, Btheta, theta, phi):
-//     """Converts magnetic field of a sphere from spherical to cartesian coordinates
-//
-//     Args:
-//         Br (ndarray): radial vector component
-//         Btheta (ndarray): polar vector component
-//         theta (ndarray): azimuthal angles
-//         phi (ndarray): polar angle
-//
-//     Returns:
-//         tuple: Bx,By,Bz
-//     """
-//     Bx = Br * _np.sin(theta) * _np.cos(phi) + Btheta * _np.cos(theta) * _np.cos(phi)
-//
-//     By = Br * _np.sin(theta) * _np.sin(phi) + Btheta * _np.cos(theta) * _np.sin(phi)
-//
-//     Bz = Br * _np.cos(theta) - Btheta * _np.sin(theta)
-//     return Bx, By, Bz
+/// Converts a cartesian coordinate to spherical
+pub fn cart2sph(point: &Point3) -> SphericalPoint {
+    let rho = point.magnitude();
+    let phi = point.y.atan2(point.x);
+    let theta = (point.z / rho).acos();
+    SphericalPoint::new(rho, phi, theta)
+}
+
+/// Converts a polar coordinate to cartesian
+pub fn sph2cart(point: &SphericalPoint) -> Point3 {
+    let x = point.rho * point.phi.cos() * point.theta.sin();
+    let y = point.rho * point.phi.sin() * point.theta.sin();
+    let z = point.rho * point.theta.cos();
+    Point3 { x, y, z }
+}
+
+/// Converts a spherical vector to a cartesian vector
+pub fn vector_sph2cart(vector: &SphericalPoint, phi: &f64, theta: &f64) -> Point3 {
+    let cos_phi = phi.cos();
+    let sin_phi = phi.sin();
+    let cos_theta = theta.cos();
+    let sin_theta = theta.sin();
+
+    let vector_x = vector.rho * cos_theta * cos_phi + vector.theta * cos_theta * cos_phi
+        - vector.phi * sin_phi;
+
+    let vector_y = vector.rho * sin_theta * sin_phi
+        + vector.theta * cos_theta * sin_phi
+        + vector.phi * cos_phi;
+
+    let vector_z = vector.rho * cos_theta - vector.theta * sin_theta;
+
+    Point3 {
+        x: vector_x,
+        y: vector_y,
+        z: vector_z,
+    }
+}
 
 #[cfg(test)]
 mod tests {

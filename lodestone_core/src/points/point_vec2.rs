@@ -60,7 +60,7 @@ pub trait PointVecs2 {
 use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 
 /// Point2 Vector struct
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PointVec2 {
     pub x: Vec<f64>,
     pub y: Vec<f64>,
@@ -72,6 +72,12 @@ impl Default for PointVec2 {
             x: vec![0.0],
             y: vec![0.0],
         }
+    }
+}
+
+impl PartialEq for PointVec2 {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
     }
 }
 

@@ -3,6 +3,7 @@ use crate::points::Point2;
 use crate::{MagnetError, PI};
 // use crate::magnets::
 
+#[allow(dead_code)]
 /// Calculate the magnetic field due to a solenoid at any point
 /// returns Bz,Br as a Point2 structure
 pub fn solenoid_field(a: f64, b: f64, rho: f64, z: f64, b_0: f64) -> Result<Point2, MagnetError> {

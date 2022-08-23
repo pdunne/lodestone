@@ -11,6 +11,7 @@ use super::MagnetTrait;
 
 pub mod bulirsch;
 mod prism;
+mod prism_field;
 mod solenoid;
 
 pub use prism::*;
@@ -29,5 +30,5 @@ pub enum Magnet3D {
     Custom,
 }
 
-/// Magnet2D Traits
+/// Magnet3D Traits
 pub trait MagnetTrait3D<POINT, CENTER, SIZE, MAG>: MagnetTrait<POINT, CENTER, SIZE, MAG> {}

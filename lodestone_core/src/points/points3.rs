@@ -24,7 +24,7 @@ impl Point3 {
         (self.x, self.y, self.z)
     }
 
-    /// Returns a point struct as a tuple
+    /// Returns a point struct as an array
     pub fn as_array(&self) -> [f64; 3] {
         [self.x, self.y, self.z]
     }

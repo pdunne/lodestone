@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'lodestone_core'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=lodestone_core"
+                ],
+                "filter": {
+                    "name": "lodestone_core",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "sourceMap": {
+                "/rustc/7737e0b5c4103216d6fd8cf941b7ab9bdbaace7c/": "/Users/peter/.rustup/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust"
+            },
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'magnet_rs'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=magnet_rs",
+                    "--package=magnet_rs"
+                ],
+                "filter": {
+                    "name": "magnet_rs",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'magnet_rs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=magnet_rs",
+                    "--package=magnet_rs"
+                ],
+                "filter": {
+                    "name": "magnet_rs",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

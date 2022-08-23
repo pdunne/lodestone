@@ -30,7 +30,7 @@ indicatif = {version = "0.16", features = ["rayon"]}
 
 [package.metadata.docs.rs]
 rustdoc-args = [
-    "--html-in-header",
+    "--html-in-header", 
     "./src/katex.html"
 ] 
 
